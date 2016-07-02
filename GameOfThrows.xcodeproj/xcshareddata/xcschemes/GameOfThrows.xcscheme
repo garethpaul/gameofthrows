@@ -38,6 +38,16 @@
                ReferencedContainer = "container:GameOfThrows.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "7FD1E5A81D27795A00FB1662"
+               BuildableName = "GameOfThrowsUITests.xctest"
+               BlueprintName = "GameOfThrowsUITests"
+               ReferencedContainer = "container:GameOfThrows.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

@@ -71,9 +71,3 @@ When the required SDK or runtime is unavailable, use static checks and source re
 ## Contributing
 
 Keep changes small and tied to the project that is already present in this repository. For code changes, document the toolchain used, avoid committing generated dependency directories or local configuration, and update this README when setup or verification steps change.
-
-## Existing Project Notes
-
-Prior README summary:
-
-> gameofthrows [![Build Status](https://travis-ci.org/garethpaul/gameofthrows.svg?branch=gpj%2Fadd-testing)](https://travis-ci.org/garethpaul/gameofthrows) Game of Throws This is a simple "flappy-bird" like app. Getting Started 1. Clone the Repo 2. Open GameofThrows.xcodeproj

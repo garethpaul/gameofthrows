@@ -1,5 +1,8 @@
 ## Game Of Throws Vision
 
+This document explains the current state and direction of the project.
+Project overview and developer docs: [`README.md`](README.md)
+
 Game Of Throws is a simple Swift SpriteKit game in the style of a flappy-bird
 side-scroller.
 

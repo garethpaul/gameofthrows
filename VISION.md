@@ -39,7 +39,6 @@ Canonical security policy and reporting:
 
 - [`SECURITY.md`](SECURITY.md)
 
-
 This is a local game sample. Future network, analytics, or leaderboard features
 should be opt-in, documented, and avoid collecting unnecessary user data.
 

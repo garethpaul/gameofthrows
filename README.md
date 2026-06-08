@@ -13,17 +13,20 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 
 - `README.md` - project overview and local usage notes
 - `build.sh`
+- `CHANGES.md` - concise history of maintenance changes
 - `GameOfThrows` - source or example code
 - `GameOfThrows.xcodeproj` - Xcode project file
 - `GameOfThrowsUITests` - source or example code
+- `Makefile` - local verification entry point
 - `SECURITY.md` - security reporting and disclosure guidance
+- `scripts/check-baseline.sh` - static SpriteKit/Xcode project checks
 - `VISION.md` - project direction and maintenance guardrails
 
 Additional scan context:
 
 - Source directories: GameOfThrows, GameOfThrowsUITests
 - Dependency and build manifests: none detected
-- Entry points or build surfaces: build.sh, GameOfThrows.xcodeproj
+- Entry points or build surfaces: build.sh, Makefile, GameOfThrows.xcodeproj
 - Test-looking files: GameOfThrowsUITests/GameOfThrowsUITests.swift, GameOfThrowsUITests/Info.plist
 
 ## Getting Started
@@ -49,7 +52,11 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 ## Testing and Verification
 
+- Run `make check` for static project, script, asset, and crash-hardening checks that do not require Xcode.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
+- Run `./build.sh` on macOS with Xcode installed. Set `IOS_SIMULATOR_NAME` to
+  override only the simulator name, or `IOS_DESTINATION` to provide a full
+  xcodebuild destination string.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -65,6 +72,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 ## Maintenance Notes
 
 - This looks like an Apple platform project or sample. Xcode, Swift, CocoaPods, and deployment target versions may need to match the original project era.
+- Run `make check` before pushing changes that touch SpriteKit scene loading,
+  assets, build scripts, project files, or UI test setup.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 

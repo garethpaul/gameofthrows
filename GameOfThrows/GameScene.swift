@@ -140,8 +140,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         pipePair.position = CGPointMake( self.frame.size.width + pipeTextureUp.size().width * 2, 0 )
         pipePair.zPosition = -10
         
-        let height = UInt32( UInt(self.frame.size.height / 4) )
-        let y = arc4random() % height + height
+        let height = max(UInt32(UInt(self.frame.size.height / 4)), 1)
+        let y = arc4random_uniform(height) + height
         
         let pipeDown = SKSpriteNode(texture: pipeTextureDown)
         pipeDown.setScale(2.0)
@@ -227,7 +227,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     override func update(currentTime: CFTimeInterval) {
         /* Called before each frame is rendered */
-        bird.zRotation = self.clamp( -1, max: 0.5, value: bird.physicsBody!.velocity.dy * ( bird.physicsBody!.velocity.dy < 0 ? 0.003 : 0.001 ) )
+        guard let bird = bird, let physicsBody = bird.physicsBody else {
+            return
+        }
+
+        let verticalVelocity = physicsBody.velocity.dy
+        bird.zRotation = self.clamp( -1, max: 0.5, value: verticalVelocity * ( verticalVelocity < 0 ? 0.003 : 0.001 ) )
     }
     
     func didBeginContact(contact: SKPhysicsContact) {

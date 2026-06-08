@@ -22,9 +22,20 @@ Priority:
 - Maintain basic Xcode project buildability
 - Avoid broad gameplay rewrites without verification
 
+Current baseline:
+
+- `scripts/check-baseline.sh` and `make check` validate shell syntax, plist
+  presence, Xcode project shape, scene-loading guardrails, and SpriteKit physics
+  safety checks.
+- `build.sh` uses POSIX shell syntax and supports `IOS_SIMULATOR_NAME` for
+  simulator selection plus `IOS_DESTINATION` for full xcodebuild destination
+  overrides.
+- Scene loading and per-frame physics updates avoid the most crash-prone force
+  unwraps.
+- UI tests keep a launch smoke test for basic app startup coverage.
+
 Next priorities:
 
-- Document Xcode and simulator expectations
 - Add manual gameplay verification notes
 - Expand tests around scene loading or score/state behavior where practical
 - Modernize Swift/project settings in a dedicated pass

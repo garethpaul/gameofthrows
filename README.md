@@ -76,4 +76,4 @@ Keep changes small and tied to the project that is already present in this repos
 
 Prior README summary:
 
-> gameofthrows <!-- README-OVERVIEW-IMAGE --> [![Build Status](https://travis-ci.org/garethpaul/gameofthrows.svg?branch=gpj%2Fadd-testing)](https://travis-ci.org/garethpaul/gameofthrows) Game of Throws This is a simple "flappy-bird" like app. Getting Started 1. Clone the Repo 2. Open GameofThrows.xcodeproj
+> gameofthrows [![Build Status](https://travis-ci.org/garethpaul/gameofthrows.svg?branch=gpj%2Fadd-testing)](https://travis-ci.org/garethpaul/gameofthrows) Game of Throws This is a simple "flappy-bird" like app. Getting Started 1. Clone the Repo 2. Open GameofThrows.xcodeproj

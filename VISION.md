@@ -44,3 +44,6 @@ should be opt-in, documented, and avoid collecting unnecessary user data.
 - Broad Swift migrations mixed with gameplay changes
 - Analytics or tracking features
 - Build changes that make the sample harder to open in Xcode
+
+This list is a roadmap guardrail, not a permanent rule.
+Strong user demand and strong technical rationale can change it.

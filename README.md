@@ -1,5 +1,8 @@
 # gameofthrows
 
+<!-- README-OVERVIEW-IMAGE -->
+![Project overview](docs/readme-overview.svg)
+
 ## Overview
 
 `garethpaul/gameofthrows` is an Apple platform application or Objective-C/Swift sample. Game of Throws
@@ -74,4 +77,3 @@ Keep changes small and tied to the project that is already present in this repos
 Prior README summary:
 
 > gameofthrows <!-- README-OVERVIEW-IMAGE --> [![Build Status](https://travis-ci.org/garethpaul/gameofthrows.svg?branch=gpj%2Fadd-testing)](https://travis-ci.org/garethpaul/gameofthrows) Game of Throws This is a simple "flappy-bird" like app. Getting Started 1. Clone the Repo 2. Open GameofThrows.xcodeproj
-

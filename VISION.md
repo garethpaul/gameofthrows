@@ -38,7 +38,7 @@ Contribution rules:
 This is a local game sample. Future network, analytics, or leaderboard features
 should be opt-in, documented, and avoid collecting unnecessary user data.
 
-## What We Will Not Merge For Now
+## What We Will Not Merge (For Now)
 
 - Asset replacements without purpose or provenance
 - Broad Swift migrations mixed with gameplay changes

@@ -4,6 +4,8 @@
 
 - Added `make lint`, `make test`, and `make build` aliases so local verification
   has the expected pre-push gate targets in addition to `make check`.
+- Routed touch, contact, and spawn checks through a shared active-gameplay guard
+  before reading movement state.
 - Required score increments to come from explicit bird-score contacts so future
   physics category changes cannot award points for unrelated contacts.
 - Guarded pipe spawning so stopped gameplay or incomplete scene setup cannot

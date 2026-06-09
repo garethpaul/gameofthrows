@@ -42,6 +42,8 @@ Current baseline:
   next run.
 - The pipe spawning path is guarded by movement state and required scene
   resources so stopped gameplay does not keep adding pipe pairs.
+- Touch, contact, and pipe spawning paths share an active-gameplay guard before
+  reading movement state.
 - The local Makefile exposes lint, test, build, and check targets for a stable
   pre-push gate.
 - UI tests keep a launch smoke test for basic app startup coverage.
@@ -60,6 +62,8 @@ Next priorities:
   action-driven
 - Keep local verification targets available even while full Xcode execution
   needs a macOS toolchain
+- Keep touch, contact, and spawn decisions routed through the active-gameplay
+  guard while movement state remains an implicitly unwrapped scene node
 - Modernize Swift/project settings in a dedicated pass
 
 Contribution rules:

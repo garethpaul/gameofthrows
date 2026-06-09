@@ -67,6 +67,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   scoring animations do not carry into a new run.
 - The pipe spawning loop is guarded so stopped gameplay or incomplete scene
   setup cannot add new pipe pairs.
+- Touch, contact, and pipe spawning paths share an active-gameplay guard before
+  reading movement state.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
 - Run `./build.sh` on macOS with Xcode installed. Set `IOS_SIMULATOR_NAME` to
   override only the simulator name, or `IOS_DESTINATION` to provide a full
@@ -101,6 +103,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   spawning readiness guard.
 - See `docs/plans/2026-06-09-gameofthrows-make-gate-aliases.md` for local
   verification target guardrails.
+- See `docs/plans/2026-06-09-gameplay-state-guard.md` for the shared
+  active-gameplay guard.
 
 ## Contributing
 

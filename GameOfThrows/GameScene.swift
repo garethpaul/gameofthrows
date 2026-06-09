@@ -182,13 +182,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
 
     func shouldSpawnPipes() -> Bool {
-        return moving != nil &&
-            moving.speed > 0 &&
+        return isGameplayRunning() &&
             pipes != nil &&
             pipeTextureUp != nil &&
             pipeTextureDown != nil &&
             bird != nil &&
             movePipesAndRemove != nil
+    }
+
+    func isGameplayRunning() -> Bool {
+        return moving != nil && moving.speed > 0
     }
     
     func resetScene (){
@@ -215,7 +218,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {        /* Called when a touch begins */
-        if moving.speed > 0  {
+        if isGameplayRunning() {
             applyBirdImpulse()
         }else if canRestart {
             self.resetScene()
@@ -275,34 +278,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
     
     func didBeginContact(contact: SKPhysicsContact) {
-        if moving.speed > 0 {
-            if let scoringNode = scoreContactNode(contact) {
-                // Bird has contact with score entity
-                scoringNode.physicsBody = nil
-                scoringNode.removeFromParent()
-                score += 1
-                scoreLabelNode.text = String(score)
-                
-                // Add a little visual feedback for the score increment
-                scoreLabelNode.runAction(SKAction.sequence([SKAction.scaleTo(1.5, duration:NSTimeInterval(0.1)), SKAction.scaleTo(1.0, duration:NSTimeInterval(0.1))]))
-            } else {
-                
-                moving.speed = 0
-                
-                bird.physicsBody?.collisionBitMask = worldCategory
-                bird.runAction(  SKAction.rotateByAngle(CGFloat(M_PI) * CGFloat(bird.position.y) * 0.01, duration:1), completion:{self.bird.speed = 0 })
-                
-                
-                // Flash background if contact is detected
-                self.removeActionForKey("flash")
-                self.runAction(SKAction.sequence([SKAction.repeatAction(SKAction.sequence([SKAction.runBlock({
-                    self.backgroundColor = SKColor(red: 1, green: 0, blue: 0, alpha: 1.0)
-                    }),SKAction.waitForDuration(NSTimeInterval(0.05)), SKAction.runBlock({
-                        self.backgroundColor = self.skyColor
-                        }), SKAction.waitForDuration(NSTimeInterval(0.05))]), count:4), SKAction.runBlock({
-                            self.canRestart = true
-                            })]), withKey: "flash")
-            }
+        if !isGameplayRunning() {
+            return
+        }
+
+        if let scoringNode = scoreContactNode(contact) {
+            // Bird has contact with score entity
+            scoringNode.physicsBody = nil
+            scoringNode.removeFromParent()
+            score += 1
+            scoreLabelNode.text = String(score)
+
+            // Add a little visual feedback for the score increment
+            scoreLabelNode.runAction(SKAction.sequence([SKAction.scaleTo(1.5, duration:NSTimeInterval(0.1)), SKAction.scaleTo(1.0, duration:NSTimeInterval(0.1))]))
+        } else {
+
+            moving.speed = 0
+
+            bird.physicsBody?.collisionBitMask = worldCategory
+            bird.runAction(  SKAction.rotateByAngle(CGFloat(M_PI) * CGFloat(bird.position.y) * 0.01, duration:1), completion:{self.bird.speed = 0 })
+
+
+            // Flash background if contact is detected
+            self.removeActionForKey("flash")
+            self.runAction(SKAction.sequence([SKAction.repeatAction(SKAction.sequence([SKAction.runBlock({
+                self.backgroundColor = SKColor(red: 1, green: 0, blue: 0, alpha: 1.0)
+                }),SKAction.waitForDuration(NSTimeInterval(0.05)), SKAction.runBlock({
+                    self.backgroundColor = self.skyColor
+                    }), SKAction.waitForDuration(NSTimeInterval(0.05))]), count:4), SKAction.runBlock({
+                        self.canRestart = true
+                        })]), withKey: "flash")
         }
     }
 }

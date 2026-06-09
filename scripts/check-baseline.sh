@@ -10,6 +10,7 @@ BIRD_SCORE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-score-contact-bird-pairing.md"
 PIPE_SPAWN_PLAN="$ROOT_DIR/docs/plans/2026-06-09-pipe-spawn-readiness-guard.md"
 MAKE_GATES_PLAN="$ROOT_DIR/docs/plans/2026-06-09-gameofthrows-make-gate-aliases.md"
 GAMEPLAY_STATE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-gameplay-state-guard.md"
+RESTART_RESOURCE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-restart-resource-guard.md"
 
 require_file() {
   path=$1
@@ -37,6 +38,7 @@ for path in \
   "docs/plans/2026-06-09-score-label-restart-reset.md" \
   "docs/plans/2026-06-09-score-contact-bird-pairing.md" \
   "docs/plans/2026-06-09-pipe-spawn-readiness-guard.md" \
+  "docs/plans/2026-06-09-restart-resource-guard.md" \
   "docs/plans/2026-06-09-gameofthrows-make-gate-aliases.md" \
   "docs/plans/2026-06-09-gameplay-state-guard.md" \
   "docs/plans/2026-06-08-gameofthrows-spritekit-baseline.md" \
@@ -166,6 +168,14 @@ if ! grep -Fq "scoreLabelNode.setScale(1.0)" "$ROOT_DIR/GameOfThrows/GameScene.s
   exit 1
 fi
 
+if ! grep -Fq "guard let bird = bird" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq "let pipes = pipes" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq "let moving = moving" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq "let scoreLabelNode = scoreLabelNode" "$ROOT_DIR/GameOfThrows/GameScene.swift"; then
+  printf '%s\n' "GameScene restart must guard required scene resources before resetting." >&2
+  exit 1
+fi
+
 if ! grep -Fq "GameOfThrowsUITests" "$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"; then
   printf '%s\n' "Xcode project must include the UI test target." >&2
   exit 1
@@ -188,6 +198,7 @@ if ! grep -Fq "make lint" "$ROOT_DIR/README.md" ||
   ! grep -Fq "score sensor" "$ROOT_DIR/README.md" ||
   ! grep -Fq "bird-score contact" "$ROOT_DIR/README.md" ||
   ! grep -Fq "pipe spawning" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "Restart checks required scene resources" "$ROOT_DIR/README.md" ||
   ! grep -Fq "active-gameplay guard" "$ROOT_DIR/README.md" ||
   ! grep -Fq "score label scale" "$ROOT_DIR/README.md"; then
   printf '%s\n' "README must document the baseline verification command and simulator override." >&2
@@ -203,6 +214,7 @@ if ! grep -Fq "scripts/check-baseline.sh" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "one score per pipe sensor" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "bird-score contact" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "pipe spawning" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "Restart checks required scene resources" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "active-gameplay guard" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "score label scale" "$ROOT_DIR/VISION.md"; then
   printf '%s\n' "VISION must describe the current verification baseline." >&2
@@ -246,6 +258,16 @@ fi
 
 if ! grep -Fq "status: completed" "$GAMEPLAY_STATE_PLAN"; then
   printf '%s\n' "Gameplay state guard plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$RESTART_RESOURCE_PLAN"; then
+  printf '%s\n' "Restart resource guard plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "make check" "$RESTART_RESOURCE_PLAN"; then
+  printf '%s\n' "Restart resource guard plan must record make check verification." >&2
   exit 1
 fi
 

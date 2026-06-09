@@ -40,6 +40,8 @@ Current baseline:
   bodies cannot award points if contact categories change later.
 - Restart resets score label scale so score animations do not leak into the
   next run.
+- Restart checks required scene resources before resetting bird position,
+  clearing pipes, or updating score labels.
 - The pipe spawning path is guarded by movement state and required scene
   resources so stopped gameplay does not keep adding pipe pairs.
 - Touch, contact, and pipe spawning paths share an active-gameplay guard before
@@ -58,6 +60,8 @@ Next priorities:
   statically verified
 - Keep score label scale reset behavior covered while score animations remain
   runtime-only
+- Keep restart resource checks covered while scene state remains implicitly
+  unwrapped
 - Keep pipe spawning tied to active movement while the restart loop remains
   action-driven
 - Keep local verification targets available even while full Xcode execution

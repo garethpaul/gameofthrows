@@ -65,6 +65,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   bird physics before flapping.
 - Restart resets the score label scale as well as the score value so prior
   scoring animations do not carry into a new run.
+- Restart checks required scene resources before moving the bird, clearing
+  pipes, or resetting labels.
 - The pipe spawning loop is guarded so stopped gameplay or incomplete scene
   setup cannot add new pipe pairs.
 - Touch, contact, and pipe spawning paths share an active-gameplay guard before
@@ -97,6 +99,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   guard.
 - See `docs/plans/2026-06-09-score-label-restart-reset.md` for the score label
   restart reset.
+- See `docs/plans/2026-06-09-restart-resource-guard.md` for the restart scene
+  resource guard.
 - See `docs/plans/2026-06-09-score-contact-bird-pairing.md` for the explicit
   score-contact pairing guard.
 - See `docs/plans/2026-06-09-pipe-spawn-readiness-guard.md` for the pipe

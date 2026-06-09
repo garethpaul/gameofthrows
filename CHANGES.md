@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Guarded restart scene resources before resetting bird, pipe, movement, and
+  score-label state.
 - Added `make lint`, `make test`, and `make build` aliases so local verification
   has the expected pre-push gate targets in addition to `make check`.
 - Routed touch, contact, and spawn checks through a shared active-gameplay guard

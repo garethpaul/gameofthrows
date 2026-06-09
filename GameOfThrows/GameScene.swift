@@ -195,6 +195,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
     
     func resetScene (){
+        guard let bird = bird,
+            let pipes = pipes,
+            let moving = moving,
+            let scoreLabelNode = scoreLabelNode else {
+            return
+        }
+
         // Move bird to original position and reset velocity
         bird.position = CGPointMake(self.frame.size.width / 2.5, CGRectGetMidY(self.frame))
         bird.physicsBody?.velocity = CGVectorMake( 0, 0 )

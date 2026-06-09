@@ -62,6 +62,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   bird physics before flapping.
 - Restart resets the score label scale as well as the score value so prior
   scoring animations do not carry into a new run.
+- The pipe spawning loop is guarded so stopped gameplay or incomplete scene
+  setup cannot add new pipe pairs.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
 - Run `./build.sh` on macOS with Xcode installed. Set `IOS_SIMULATOR_NAME` to
   override only the simulator name, or `IOS_DESTINATION` to provide a full
@@ -91,6 +93,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   restart reset.
 - See `docs/plans/2026-06-09-score-contact-bird-pairing.md` for the explicit
   score-contact pairing guard.
+- See `docs/plans/2026-06-09-pipe-spawn-readiness-guard.md` for the pipe
+  spawning readiness guard.
 
 ## Contributing
 

@@ -136,6 +136,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
     
     func spawnPipes() {
+        if !shouldSpawnPipes() {
+            return
+        }
+
         let pipePair = SKNode()
         pipePair.position = CGPointMake( self.frame.size.width + pipeTextureUp.size().width * 2, 0 )
         pipePair.zPosition = -10
@@ -175,6 +179,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         pipePair.runAction(movePipesAndRemove)
         pipes.addChild(pipePair)
         
+    }
+
+    func shouldSpawnPipes() -> Bool {
+        return moving != nil &&
+            moving.speed > 0 &&
+            pipes != nil &&
+            pipeTextureUp != nil &&
+            pipeTextureDown != nil &&
+            bird != nil &&
+            movePipesAndRemove != nil
     }
     
     func resetScene (){

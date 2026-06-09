@@ -4,6 +4,8 @@
 
 - Required score increments to come from explicit bird-score contacts so future
   physics category changes cannot award points for unrelated contacts.
+- Guarded pipe spawning so stopped gameplay or incomplete scene setup cannot
+  add new pipe pairs.
 
 ## 2026-06-08
 

@@ -40,6 +40,8 @@ Current baseline:
   bodies cannot award points if contact categories change later.
 - Restart resets score label scale so score animations do not leak into the
   next run.
+- The pipe spawning path is guarded by movement state and required scene
+  resources so stopped gameplay does not keep adding pipe pairs.
 - UI tests keep a launch smoke test for basic app startup coverage.
 
 Next priorities:
@@ -52,6 +54,8 @@ Next priorities:
   statically verified
 - Keep score label scale reset behavior covered while score animations remain
   runtime-only
+- Keep pipe spawning tied to active movement while the restart loop remains
+  action-driven
 - Modernize Swift/project settings in a dedicated pass
 
 Contribution rules:

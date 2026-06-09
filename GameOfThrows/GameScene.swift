@@ -194,6 +194,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         // Reset score
         score = 0
         scoreLabelNode.text = String(score)
+        scoreLabelNode.setScale(1.0)
         
         // Restart animation
         moving.speed = 1

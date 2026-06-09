@@ -36,6 +36,8 @@ Current baseline:
   physics access before flapping.
 - Score contacts enforce one score per pipe sensor by removing each score
   sensor after its first hit.
+- Restart resets score label scale so score animations do not leak into the
+  next run.
 - UI tests keep a launch smoke test for basic app startup coverage.
 
 Next priorities:
@@ -44,6 +46,8 @@ Next priorities:
 - Expand tests around scene loading or score/state behavior where practical
 - Keep tap impulse and restart behavior covered by static checks until runtime
   tests are available
+- Keep score label scale reset behavior covered while score animations remain
+  runtime-only
 - Modernize Swift/project settings in a dedicated pass
 
 Contribution rules:

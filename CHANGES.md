@@ -4,6 +4,8 @@
 
 - Removed each score sensor after its first contact so one pipe pair cannot
   increment the score multiple times.
+- Reset the score label scale on restart so score animations do not carry into
+  a new run.
 - Routed touch input through a single guarded bird impulse so one touch event
   cannot apply duplicate flaps.
 - Added `make check` and `scripts/check-baseline.sh` for static iOS project verification.

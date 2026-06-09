@@ -5,6 +5,7 @@ ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 PLAN="$ROOT_DIR/docs/plans/2026-06-08-gameofthrows-spritekit-baseline.md"
 SCORE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-score-contact-idempotency.md"
 IMPULSE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-single-tap-impulse-guard.md"
+SCORE_RESET_PLAN="$ROOT_DIR/docs/plans/2026-06-09-score-label-restart-reset.md"
 
 require_file() {
   path=$1
@@ -29,6 +30,7 @@ for path in \
   "GameOfThrows/AppDelegate.swift" \
   "GameOfThrowsUITests/Info.plist" \
   "GameOfThrowsUITests/GameOfThrowsUITests.swift" \
+  "docs/plans/2026-06-09-score-label-restart-reset.md" \
   "docs/plans/2026-06-08-gameofthrows-spritekit-baseline.md" \
   "docs/plans/2026-06-09-single-tap-impulse-guard.md" \
   "docs/plans/2026-06-09-score-contact-idempotency.md"; do
@@ -121,6 +123,11 @@ if ! grep -Fq "func scoreContactNode" "$ROOT_DIR/GameOfThrows/GameScene.swift" |
   exit 1
 fi
 
+if ! grep -Fq "scoreLabelNode.setScale(1.0)" "$ROOT_DIR/GameOfThrows/GameScene.swift"; then
+  printf '%s\n' "GameScene restart must reset score label scale after score animations." >&2
+  exit 1
+fi
+
 if ! grep -Fq "GameOfThrowsUITests" "$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"; then
   printf '%s\n' "Xcode project must include the UI test target." >&2
   exit 1
@@ -137,7 +144,8 @@ if ! grep -Fq "make check" "$ROOT_DIR/README.md" ||
   ! grep -Fq "IOS_DESTINATION" "$ROOT_DIR/README.md" ||
   ! grep -Fq "IOS_SIMULATOR_NAME" "$ROOT_DIR/README.md" ||
   ! grep -Fq "one bird impulse per touch event" "$ROOT_DIR/README.md" ||
-  ! grep -Fq "score sensor" "$ROOT_DIR/README.md"; then
+  ! grep -Fq "score sensor" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "score label scale" "$ROOT_DIR/README.md"; then
   printf '%s\n' "README must document the baseline verification command and simulator override." >&2
   exit 1
 fi
@@ -145,7 +153,8 @@ fi
 if ! grep -Fq "scripts/check-baseline.sh" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "launch smoke test" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "one bird impulse per touch event" "$ROOT_DIR/VISION.md" ||
-  ! grep -Fq "one score per pipe sensor" "$ROOT_DIR/VISION.md"; then
+  ! grep -Fq "one score per pipe sensor" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "score label scale" "$ROOT_DIR/VISION.md"; then
   printf '%s\n' "VISION must describe the current verification baseline." >&2
   exit 1
 fi
@@ -162,6 +171,11 @@ fi
 
 if ! grep -Fq "status: completed" "$IMPULSE_PLAN"; then
   printf '%s\n' "Single-tap impulse plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$SCORE_RESET_PLAN"; then
+  printf '%s\n' "Score label restart reset plan must be marked completed." >&2
   exit 1
 fi
 

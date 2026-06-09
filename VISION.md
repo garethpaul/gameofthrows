@@ -24,9 +24,9 @@ Priority:
 
 Current baseline:
 
-- `scripts/check-baseline.sh` and `make check` validate shell syntax, plist
-  presence, Xcode project shape, scene-loading guardrails, and SpriteKit physics
-  safety checks.
+- `scripts/check-baseline.sh`, `make lint`, `make test`, `make build`, and
+  `make check` validate shell syntax, plist presence, Xcode project shape,
+  scene-loading guardrails, and SpriteKit physics safety checks.
 - `build.sh` uses POSIX shell syntax and supports `IOS_SIMULATOR_NAME` for
   simulator selection plus `IOS_DESTINATION` for full xcodebuild destination
   overrides.
@@ -42,6 +42,8 @@ Current baseline:
   next run.
 - The pipe spawning path is guarded by movement state and required scene
   resources so stopped gameplay does not keep adding pipe pairs.
+- The local Makefile exposes lint, test, build, and check targets for a stable
+  pre-push gate.
 - UI tests keep a launch smoke test for basic app startup coverage.
 
 Next priorities:
@@ -56,6 +58,8 @@ Next priorities:
   runtime-only
 - Keep pipe spawning tied to active movement while the restart loop remains
   action-driven
+- Keep local verification targets available even while full Xcode execution
+  needs a macOS toolchain
 - Modernize Swift/project settings in a dedicated pass
 
 Contribution rules:

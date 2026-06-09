@@ -52,7 +52,10 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 ## Testing and Verification
 
-- Run `make check` for static project, script, asset, and crash-hardening checks that do not require Xcode.
+- Run `make lint`, `make test`, `make build`, and `make check` for static
+  project, script, asset, and crash-hardening checks that do not require Xcode.
+  The `lint`, `test`, and `build` targets currently delegate to the static
+  baseline.
 - The static baseline also preserves the score sensor contract: each pipe score
   zone removes itself after the first contact so a single pass cannot count
   twice.
@@ -83,8 +86,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
 ## Maintenance Notes
 
 - This looks like an Apple platform project or sample. Xcode, Swift, CocoaPods, and deployment target versions may need to match the original project era.
-- Run `make check` before pushing changes that touch SpriteKit scene loading,
-  assets, build scripts, project files, or UI test setup.
+- Run `make lint`, `make test`, `make build`, and `make check` before pushing
+  changes that touch SpriteKit scene loading, assets, build scripts, project
+  files, or UI test setup.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 - See `docs/plans/2026-06-09-single-tap-impulse-guard.md` for the tap impulse
@@ -95,6 +99,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   score-contact pairing guard.
 - See `docs/plans/2026-06-09-pipe-spawn-readiness-guard.md` for the pipe
   spawning readiness guard.
+- See `docs/plans/2026-06-09-gameofthrows-make-gate-aliases.md` for local
+  verification target guardrails.
 
 ## Contributing
 

@@ -8,6 +8,7 @@ IMPULSE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-single-tap-impulse-guard.md"
 SCORE_RESET_PLAN="$ROOT_DIR/docs/plans/2026-06-09-score-label-restart-reset.md"
 BIRD_SCORE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-score-contact-bird-pairing.md"
 PIPE_SPAWN_PLAN="$ROOT_DIR/docs/plans/2026-06-09-pipe-spawn-readiness-guard.md"
+MAKE_GATES_PLAN="$ROOT_DIR/docs/plans/2026-06-09-gameofthrows-make-gate-aliases.md"
 
 require_file() {
   path=$1
@@ -35,11 +36,19 @@ for path in \
   "docs/plans/2026-06-09-score-label-restart-reset.md" \
   "docs/plans/2026-06-09-score-contact-bird-pairing.md" \
   "docs/plans/2026-06-09-pipe-spawn-readiness-guard.md" \
+  "docs/plans/2026-06-09-gameofthrows-make-gate-aliases.md" \
   "docs/plans/2026-06-08-gameofthrows-spritekit-baseline.md" \
   "docs/plans/2026-06-09-single-tap-impulse-guard.md" \
   "docs/plans/2026-06-09-score-contact-idempotency.md"; do
   require_file "$path"
 done
+
+makefile="$ROOT_DIR/Makefile"
+if ! grep -Eq '^\.PHONY: .*build.*check.*lint.*test|^\.PHONY: .*build.*lint.*test.*check' "$makefile" ||
+  ! grep -Fq "lint test build: check" "$makefile"; then
+  printf '%s\n' "Makefile must expose lint, test, build, and check gate targets." >&2
+  exit 1
+fi
 
 sh -n "$ROOT_DIR/build.sh"
 sh -n "$ROOT_DIR/scripts/check-baseline.sh"
@@ -158,7 +167,10 @@ if [ -n "$build_products" ]; then
   exit 1
 fi
 
-if ! grep -Fq "make check" "$ROOT_DIR/README.md" ||
+if ! grep -Fq "make lint" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "make test" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "make build" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "make check" "$ROOT_DIR/README.md" ||
   ! grep -Fq "IOS_DESTINATION" "$ROOT_DIR/README.md" ||
   ! grep -Fq "IOS_SIMULATOR_NAME" "$ROOT_DIR/README.md" ||
   ! grep -Fq "one bird impulse per touch event" "$ROOT_DIR/README.md" ||
@@ -171,6 +183,9 @@ if ! grep -Fq "make check" "$ROOT_DIR/README.md" ||
 fi
 
 if ! grep -Fq "scripts/check-baseline.sh" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "make lint" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "make test" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "make build" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "launch smoke test" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "one bird impulse per touch event" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "one score per pipe sensor" "$ROOT_DIR/VISION.md" ||
@@ -208,6 +223,11 @@ fi
 
 if ! grep -Fq "status: completed" "$PIPE_SPAWN_PLAN"; then
   printf '%s\n' "Pipe spawn readiness plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$MAKE_GATES_PLAN"; then
+  printf '%s\n' "Make gate alias plan must be marked completed." >&2
   exit 1
 fi
 

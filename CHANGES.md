@@ -2,6 +2,8 @@
 
 ## 2026-06-09
 
+- Added `make lint`, `make test`, and `make build` aliases so local verification
+  has the expected pre-push gate targets in addition to `make check`.
 - Required score increments to come from explicit bird-score contacts so future
   physics category changes cannot award points for unrelated contacts.
 - Guarded pipe spawning so stopped gameplay or incomplete scene setup cannot

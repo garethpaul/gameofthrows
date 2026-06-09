@@ -32,6 +32,8 @@ Current baseline:
   overrides.
 - Scene loading and per-frame physics updates avoid the most crash-prone force
   unwraps.
+- Touch handling applies one bird impulse per touch event and guards bird
+  physics access before flapping.
 - Score contacts enforce one score per pipe sensor by removing each score
   sensor after its first hit.
 - UI tests keep a launch smoke test for basic app startup coverage.
@@ -40,6 +42,8 @@ Next priorities:
 
 - Add manual gameplay verification notes
 - Expand tests around scene loading or score/state behavior where practical
+- Keep tap impulse and restart behavior covered by static checks until runtime
+  tests are available
 - Modernize Swift/project settings in a dedicated pass
 
 Contribution rules:

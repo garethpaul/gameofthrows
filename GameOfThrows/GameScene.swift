@@ -201,16 +201,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {        /* Called when a touch begins */
         if moving.speed > 0  {
-            for touch: AnyObject in touches {
-                _ = touch.locationInNode(self)
-                
-                bird.physicsBody?.velocity = CGVectorMake(0, 0)
-                bird.physicsBody?.applyImpulse(CGVectorMake(0, 30))
-                
-            }
+            applyBirdImpulse()
         }else if canRestart {
             self.resetScene()
         }
+    }
+
+    func applyBirdImpulse() {
+        guard let bird = bird, let physicsBody = bird.physicsBody else {
+            return
+        }
+
+        physicsBody.velocity = CGVectorMake(0, 0)
+        physicsBody.applyImpulse(CGVectorMake(0, 30))
     }
     
     // TODO: Move to utilities somewhere. There's no reason this should be a member function

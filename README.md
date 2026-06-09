@@ -56,6 +56,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - The static baseline also preserves the score sensor contract: each pipe score
   zone removes itself after the first contact so a single pass cannot count
   twice.
+- Touch handling applies one bird impulse per touch event and guards missing
+  bird physics before flapping.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
 - Run `./build.sh` on macOS with Xcode installed. Set `IOS_SIMULATOR_NAME` to
   override only the simulator name, or `IOS_DESTINATION` to provide a full
@@ -79,6 +81,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   assets, build scripts, project files, or UI test setup.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
+- See `docs/plans/2026-06-09-single-tap-impulse-guard.md` for the tap impulse
+  guard.
 
 ## Contributing
 

@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-09
+
+- Required score increments to come from explicit bird-score contacts so future
+  physics category changes cannot award points for unrelated contacts.
+
 ## 2026-06-08
 
 - Removed each score sensor after its first contact so one pipe pair cannot

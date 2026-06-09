@@ -36,6 +36,8 @@ Current baseline:
   physics access before flapping.
 - Score contacts enforce one score per pipe sensor by removing each score
   sensor after its first hit.
+- Score increments require an explicit bird-score contact so unrelated physics
+  bodies cannot award points if contact categories change later.
 - Restart resets score label scale so score animations do not leak into the
   next run.
 - UI tests keep a launch smoke test for basic app startup coverage.
@@ -46,6 +48,8 @@ Next priorities:
 - Expand tests around scene loading or score/state behavior where practical
 - Keep tap impulse and restart behavior covered by static checks until runtime
   tests are available
+- Keep bird-score contact pairing covered while score behavior remains
+  statically verified
 - Keep score label scale reset behavior covered while score animations remain
   runtime-only
 - Modernize Swift/project settings in a dedicated pass

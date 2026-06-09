@@ -56,6 +56,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - The static baseline also preserves the score sensor contract: each pipe score
   zone removes itself after the first contact so a single pass cannot count
   twice.
+- Score increments are limited to bird-score contacts, so future physics
+  category changes cannot accidentally award points for non-player contacts.
 - Touch handling applies one bird impulse per touch event and guards missing
   bird physics before flapping.
 - Restart resets the score label scale as well as the score value so prior
@@ -87,6 +89,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   guard.
 - See `docs/plans/2026-06-09-score-label-restart-reset.md` for the score label
   restart reset.
+- See `docs/plans/2026-06-09-score-contact-bird-pairing.md` for the explicit
+  score-contact pairing guard.
 
 ## Contributing
 

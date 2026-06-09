@@ -228,12 +228,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         }
     }
 
+    func bodyMatchesCategory(body: SKPhysicsBody, category: UInt32) -> Bool {
+        return ( body.categoryBitMask & category ) == category
+    }
+
     func scoreContactNode(contact: SKPhysicsContact) -> SKNode? {
-        if ( contact.bodyA.categoryBitMask & scoreCategory ) == scoreCategory {
+        let bodyAIsScore = bodyMatchesCategory(contact.bodyA, category: scoreCategory)
+        let bodyBIsScore = bodyMatchesCategory(contact.bodyB, category: scoreCategory)
+        let bodyAIsBird = bodyMatchesCategory(contact.bodyA, category: birdCategory)
+        let bodyBIsBird = bodyMatchesCategory(contact.bodyB, category: birdCategory)
+
+        if bodyAIsScore && bodyBIsBird {
             return contact.bodyA.node
         }
 
-        if ( contact.bodyB.categoryBitMask & scoreCategory ) == scoreCategory {
+        if bodyBIsScore && bodyAIsBird {
             return contact.bodyB.node
         }
 

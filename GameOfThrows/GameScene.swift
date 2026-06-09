@@ -223,6 +223,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             return value
         }
     }
+
+    func scoreContactNode(contact: SKPhysicsContact) -> SKNode? {
+        if ( contact.bodyA.categoryBitMask & scoreCategory ) == scoreCategory {
+            return contact.bodyA.node
+        }
+
+        if ( contact.bodyB.categoryBitMask & scoreCategory ) == scoreCategory {
+            return contact.bodyB.node
+        }
+
+        return nil
+    }
     
     
     override func update(currentTime: CFTimeInterval) {
@@ -237,8 +249,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     func didBeginContact(contact: SKPhysicsContact) {
         if moving.speed > 0 {
-            if ( contact.bodyA.categoryBitMask & scoreCategory ) == scoreCategory || ( contact.bodyB.categoryBitMask & scoreCategory ) == scoreCategory {
+            if let scoringNode = scoreContactNode(contact) {
                 // Bird has contact with score entity
+                scoringNode.physicsBody = nil
+                scoringNode.removeFromParent()
                 score += 1
                 scoreLabelNode.text = String(score)
                 

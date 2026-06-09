@@ -2,6 +2,8 @@
 
 ## 2026-06-08
 
+- Removed each score sensor after its first contact so one pipe pair cannot
+  increment the score multiple times.
 - Added `make check` and `scripts/check-baseline.sh` for static iOS project verification.
 - Made `build.sh` POSIX-safe and configurable through Xcode environment overrides.
 - Hardened scene loading, pipe spawning, and frame-update physics access.

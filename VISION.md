@@ -32,6 +32,8 @@ Current baseline:
   overrides.
 - Scene loading and per-frame physics updates avoid the most crash-prone force
   unwraps.
+- Score contacts enforce one score per pipe sensor by removing each score
+  sensor after its first hit.
 - UI tests keep a launch smoke test for basic app startup coverage.
 
 Next priorities:

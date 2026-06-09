@@ -53,6 +53,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 ## Testing and Verification
 
 - Run `make check` for static project, script, asset, and crash-hardening checks that do not require Xcode.
+- The static baseline also preserves the score sensor contract: each pipe score
+  zone removes itself after the first contact so a single pass cannot count
+  twice.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
 - Run `./build.sh` on macOS with Xcode installed. Set `IOS_SIMULATOR_NAME` to
   override only the simulator name, or `IOS_DESTINATION` to provide a full

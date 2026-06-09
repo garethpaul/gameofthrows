@@ -3,6 +3,7 @@ set -eu
 
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 PLAN="$ROOT_DIR/docs/plans/2026-06-08-gameofthrows-spritekit-baseline.md"
+SCORE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-score-contact-idempotency.md"
 
 require_file() {
   path=$1
@@ -27,7 +28,8 @@ for path in \
   "GameOfThrows/AppDelegate.swift" \
   "GameOfThrowsUITests/Info.plist" \
   "GameOfThrowsUITests/GameOfThrowsUITests.swift" \
-  "docs/plans/2026-06-08-gameofthrows-spritekit-baseline.md"; do
+  "docs/plans/2026-06-08-gameofthrows-spritekit-baseline.md" \
+  "docs/plans/2026-06-09-score-contact-idempotency.md"; do
   require_file "$path"
 done
 
@@ -102,6 +104,14 @@ if ! grep -Fq "arc4random_uniform(height)" "$ROOT_DIR/GameOfThrows/GameScene.swi
   exit 1
 fi
 
+if ! grep -Fq "func scoreContactNode" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq "if let scoringNode = scoreContactNode(contact)" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq "scoringNode.physicsBody = nil" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq "scoringNode.removeFromParent()" "$ROOT_DIR/GameOfThrows/GameScene.swift"; then
+  printf '%s\n' "GameScene must remove score contact nodes after incrementing score." >&2
+  exit 1
+fi
+
 if ! grep -Fq "GameOfThrowsUITests" "$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"; then
   printf '%s\n' "Xcode project must include the UI test target." >&2
   exit 1
@@ -116,19 +126,26 @@ fi
 
 if ! grep -Fq "make check" "$ROOT_DIR/README.md" ||
   ! grep -Fq "IOS_DESTINATION" "$ROOT_DIR/README.md" ||
-  ! grep -Fq "IOS_SIMULATOR_NAME" "$ROOT_DIR/README.md"; then
+  ! grep -Fq "IOS_SIMULATOR_NAME" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "score sensor" "$ROOT_DIR/README.md"; then
   printf '%s\n' "README must document the baseline verification command and simulator override." >&2
   exit 1
 fi
 
 if ! grep -Fq "scripts/check-baseline.sh" "$ROOT_DIR/VISION.md" ||
-  ! grep -Fq "launch smoke test" "$ROOT_DIR/VISION.md"; then
+  ! grep -Fq "launch smoke test" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "one score per pipe sensor" "$ROOT_DIR/VISION.md"; then
   printf '%s\n' "VISION must describe the current verification baseline." >&2
   exit 1
 fi
 
 if ! grep -Fq "status: completed" "$PLAN"; then
   printf '%s\n' "Plan must be marked completed." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$SCORE_PLAN"; then
+  printf '%s\n' "Score-contact plan must be marked completed." >&2
   exit 1
 fi
 

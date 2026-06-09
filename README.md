@@ -71,6 +71,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   setup cannot add new pipe pairs.
 - Touch, contact, and pipe spawning paths share an active-gameplay guard before
   reading movement state.
+- Contact handling guards required scene resources before score or collision
+  work and avoids delayed `self.bird` access after a crash contact.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
 - Run `./build.sh` on macOS with Xcode installed. Set `IOS_SIMULATOR_NAME` to
   override only the simulator name, or `IOS_DESTINATION` to provide a full
@@ -100,6 +102,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `docs/plans/2026-06-09-score-label-restart-reset.md` for the score label
   restart reset.
 - See `docs/plans/2026-06-09-restart-resource-guard.md` for the restart scene
+  resource guard.
+- See `docs/plans/2026-06-09-contact-resource-guard.md` for the contact scene
   resource guard.
 - See `docs/plans/2026-06-09-score-contact-bird-pairing.md` for the explicit
   score-contact pairing guard.

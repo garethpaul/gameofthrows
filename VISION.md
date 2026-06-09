@@ -42,6 +42,8 @@ Current baseline:
   next run.
 - Restart checks required scene resources before resetting bird position,
   clearing pipes, or updating score labels.
+- Contact handling guards required scene resources before score or collision
+  work.
 - The pipe spawning path is guarded by movement state and required scene
   resources so stopped gameplay does not keep adding pipe pairs.
 - Touch, contact, and pipe spawning paths share an active-gameplay guard before
@@ -62,6 +64,7 @@ Next priorities:
   runtime-only
 - Keep restart resource checks covered while scene state remains implicitly
   unwrapped
+- Keep contact resource checks in front of score and collision side effects
 - Keep pipe spawning tied to active movement while the restart loop remains
   action-driven
 - Keep local verification targets available even while full Xcode execution

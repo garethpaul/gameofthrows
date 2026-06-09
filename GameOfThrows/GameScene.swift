@@ -289,6 +289,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             return
         }
 
+        guard let bird = bird,
+            let moving = moving,
+            let scoreLabelNode = scoreLabelNode,
+            let skyColor = skyColor else {
+            return
+        }
+
         if let scoringNode = scoreContactNode(contact) {
             // Bird has contact with score entity
             scoringNode.physicsBody = nil
@@ -303,7 +310,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             moving.speed = 0
 
             bird.physicsBody?.collisionBitMask = worldCategory
-            bird.runAction(  SKAction.rotateByAngle(CGFloat(M_PI) * CGFloat(bird.position.y) * 0.01, duration:1), completion:{self.bird.speed = 0 })
+            bird.runAction(  SKAction.rotateByAngle(CGFloat(M_PI) * CGFloat(bird.position.y) * 0.01, duration:1), completion:{bird.speed = 0 })
 
 
             // Flash background if contact is detected
@@ -311,7 +318,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             self.runAction(SKAction.sequence([SKAction.repeatAction(SKAction.sequence([SKAction.runBlock({
                 self.backgroundColor = SKColor(red: 1, green: 0, blue: 0, alpha: 1.0)
                 }),SKAction.waitForDuration(NSTimeInterval(0.05)), SKAction.runBlock({
-                    self.backgroundColor = self.skyColor
+                    self.backgroundColor = skyColor
                     }), SKAction.waitForDuration(NSTimeInterval(0.05))]), count:4), SKAction.runBlock({
                         self.canRestart = true
                         })]), withKey: "flash")

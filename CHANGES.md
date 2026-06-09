@@ -2,6 +2,7 @@
 
 ## 2026-06-09
 
+- Guarded contact handling resources before score or collision side effects.
 - Guarded restart scene resources before resetting bird, pipe, movement, and
   score-label state.
 - Added `make lint`, `make test`, and `make build` aliases so local verification

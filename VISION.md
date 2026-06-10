@@ -24,6 +24,9 @@ Priority:
 
 Current baseline:
 
+- GitHub Actions runs the static SpriteKit baseline and Xcode project parse on
+  macOS; legacy simulator UI tests remain an explicit `build.sh` action.
+
 - `scripts/check-baseline.sh`, `make lint`, `make test`, `make build`, and
   `make check` validate shell syntax, plist presence, Xcode project shape,
   scene-loading guardrails, and SpriteKit physics safety checks.

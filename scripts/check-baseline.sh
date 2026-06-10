@@ -12,6 +12,8 @@ MAKE_GATES_PLAN="$ROOT_DIR/docs/plans/2026-06-09-gameofthrows-make-gate-aliases.
 GAMEPLAY_STATE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-gameplay-state-guard.md"
 RESTART_RESOURCE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-restart-resource-guard.md"
 CONTACT_RESOURCE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-contact-resource-guard.md"
+CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-hosted-project-validation.md"
+CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 
 require_file() {
   path=$1
@@ -22,6 +24,7 @@ require_file() {
 }
 
 for path in \
+  ".github/workflows/check.yml" \
   ".gitignore" \
   "CHANGES.md" \
   "Makefile" \
@@ -45,7 +48,8 @@ for path in \
   "docs/plans/2026-06-09-gameplay-state-guard.md" \
   "docs/plans/2026-06-08-gameofthrows-spritekit-baseline.md" \
   "docs/plans/2026-06-09-single-tap-impulse-guard.md" \
-  "docs/plans/2026-06-09-score-contact-idempotency.md"; do
+  "docs/plans/2026-06-09-score-contact-idempotency.md" \
+  "docs/plans/2026-06-10-hosted-project-validation.md"; do
   require_file "$path"
 done
 
@@ -299,7 +303,23 @@ if ! grep -Fq "make check" "$CONTACT_RESOURCE_PLAN"; then
 fi
 
 if command -v xcodebuild >/dev/null 2>&1; then
-  (cd "$ROOT_DIR" && ./build.sh)
+  xcodebuild -list -project "$ROOT_DIR/GameOfThrows.xcodeproj" >/dev/null
 else
   printf '%s\n' "xcodebuild not found; static GameOfThrows baseline checks passed."
+fi
+
+if ! grep -Fq "contents: read" "$CI_WORKFLOW" ||
+  ! grep -Fq "cancel-in-progress: true" "$CI_WORKFLOW" ||
+  ! grep -Fq "runs-on: macos-15" "$CI_WORKFLOW" ||
+  ! grep -Fq "timeout-minutes: 10" "$CI_WORKFLOW" ||
+  ! grep -Fq "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10" "$CI_WORKFLOW" ||
+  ! grep -Fq "run: make check" "$CI_WORKFLOW"; then
+  printf '%s\n' "GitHub Actions must keep the bounded, least-privilege macOS project check." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$CI_PLAN" ||
+  ! grep -Fq "make check" "$CI_PLAN"; then
+  printf '%s\n' "Hosted project validation plan must be completed and record verification." >&2
+  exit 1
 fi

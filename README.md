@@ -77,6 +77,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - Run `./build.sh` on macOS with Xcode installed. Set `IOS_SIMULATOR_NAME` to
   override only the simulator name, or `IOS_DESTINATION` to provide a full
   xcodebuild destination string.
+- GitHub Actions runs `make check` on macOS and parses the Xcode project without
+  selecting an obsolete simulator. Run `build.sh` explicitly for UI testing.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -91,6 +93,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 ## Maintenance Notes
 
+- See `docs/plans/2026-06-10-hosted-project-validation.md` for the hosted Xcode
+  project parsing boundary.
 - This looks like an Apple platform project or sample. Xcode, Swift, CocoaPods, and deployment target versions may need to match the original project era.
 - Run `make lint`, `make test`, `make build`, and `make check` before pushing
   changes that touch SpriteKit scene loading, assets, build scripts, project

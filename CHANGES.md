@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-10
+
+- Added pinned macOS GitHub Actions validation for the static SpriteKit
+  baseline and Xcode project parse.
+- Kept the obsolete iPhone 5 simulator test as an explicit `build.sh` action
+  instead of running it automatically whenever Xcode is installed.
+
 ## 2026-06-09
 
 - Guarded contact handling resources before score or collision side effects.

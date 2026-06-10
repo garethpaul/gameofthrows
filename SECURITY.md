@@ -40,6 +40,9 @@ score or collision side effects.
 
 ## Dependency and Supply Chain Security
 
+GitHub Actions runs the static resource and crash guardrails plus an Xcode
+project parse with read-only repository permissions before changes land.
+
 Dependency updates should come from trusted package managers and should keep lockfiles in sync when lockfiles exist. Do not commit credentials, private keys, tokens, generated secrets, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
 
 ## Safe Research Guidelines

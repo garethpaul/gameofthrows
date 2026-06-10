@@ -13,6 +13,7 @@ GAMEPLAY_STATE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-gameplay-state-guard.md"
 RESTART_RESOURCE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-restart-resource-guard.md"
 CONTACT_RESOURCE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-contact-resource-guard.md"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-hosted-project-validation.md"
+SCENE_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-10-scene-action-lifecycle.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 
 require_file() {
@@ -49,7 +50,8 @@ for path in \
   "docs/plans/2026-06-08-gameofthrows-spritekit-baseline.md" \
   "docs/plans/2026-06-09-single-tap-impulse-guard.md" \
   "docs/plans/2026-06-09-score-contact-idempotency.md" \
-  "docs/plans/2026-06-10-hosted-project-validation.md"; do
+  "docs/plans/2026-06-10-hosted-project-validation.md" \
+  "docs/plans/2026-06-10-scene-action-lifecycle.md"; do
   require_file "$path"
 done
 
@@ -182,6 +184,16 @@ if ! grep -Fq "let skyColor = skyColor" "$ROOT_DIR/GameOfThrows/GameScene.swift"
   exit 1
 fi
 
+if ! grep -Fq "[weak self] in self?.spawnPipes()" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq 'withKey: "spawnPipes"' "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq "override func willMoveFromView" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq 'removeActionForKey("spawnPipes")' "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq 'removeActionForKey("flash")' "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq "physicsWorld.contactDelegate = nil" "$ROOT_DIR/GameOfThrows/GameScene.swift"; then
+  printf '%s\n' "GameScene must release repeating actions and contact callbacks when leaving its view." >&2
+  exit 1
+fi
+
 if ! grep -Fq "guard let bird = bird" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
   ! grep -Fq "let pipes = pipes" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
   ! grep -Fq "let moving = moving" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
@@ -214,6 +226,7 @@ if ! grep -Fq "make lint" "$ROOT_DIR/README.md" ||
   ! grep -Fq "pipe spawning" "$ROOT_DIR/README.md" ||
   ! grep -Fq "Restart checks required scene resources" "$ROOT_DIR/README.md" ||
   ! grep -Fq "Contact handling guards required scene resources" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "weak scene capture" "$ROOT_DIR/README.md" ||
   ! grep -Fq "active-gameplay guard" "$ROOT_DIR/README.md" ||
   ! grep -Fq "score label scale" "$ROOT_DIR/README.md"; then
   printf '%s\n' "README must document the baseline verification command and simulator override." >&2
@@ -231,13 +244,15 @@ if ! grep -Fq "scripts/check-baseline.sh" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "pipe spawning" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "Restart checks required scene resources" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "Contact handling guards required scene resources" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "tears down repeating actions" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "active-gameplay guard" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "score label scale" "$ROOT_DIR/VISION.md"; then
   printf '%s\n' "VISION must describe the current verification baseline." >&2
   exit 1
 fi
 
-if ! grep -Fq "Gameplay contact paths should guard required SpriteKit scene resources" "$ROOT_DIR/SECURITY.md"; then
+if ! grep -Fq "Gameplay contact paths should guard required SpriteKit scene resources" "$ROOT_DIR/SECURITY.md" ||
+  ! grep -Fq "Repeating SpriteKit actions should not retain scenes" "$ROOT_DIR/SECURITY.md"; then
   printf '%s\n' "SECURITY must document the contact resource boundary." >&2
   exit 1
 fi
@@ -321,5 +336,11 @@ fi
 if ! grep -Fq "status: completed" "$CI_PLAN" ||
   ! grep -Fq "make check" "$CI_PLAN"; then
   printf '%s\n' "Hosted project validation plan must be completed and record verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$SCENE_LIFECYCLE_PLAN" ||
+  ! grep -Fq "Mutations restoring strong spawn capture or removing teardown must fail" "$SCENE_LIFECYCLE_PLAN"; then
+  printf '%s\n' "Scene action lifecycle plan must record completed mutation verification." >&2
   exit 1
 fi

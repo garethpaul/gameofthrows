@@ -2,6 +2,8 @@
 
 ## 2026-06-10
 
+- Prevented the repeating pipe-spawn action from retaining inactive scenes and
+  added explicit action/contact teardown when a scene leaves its view.
 - Added pinned macOS GitHub Actions validation for the static SpriteKit
   baseline and Xcode project parse.
 - Kept the obsolete iPhone 5 simulator test as an explicit `build.sh` action

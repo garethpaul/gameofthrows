@@ -86,11 +86,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         movePipesAndRemove = SKAction.sequence([movePipes, removePipes])
         
         // spawn the pipes
-        let spawn = SKAction.runBlock({() in self.spawnPipes()})
+        let spawn = SKAction.runBlock({ [weak self] in self?.spawnPipes() })
         let delay = SKAction.waitForDuration(NSTimeInterval(2.0))
         let spawnThenDelay = SKAction.sequence([spawn, delay])
         let spawnThenDelayForever = SKAction.repeatActionForever(spawnThenDelay)
-        self.runAction(spawnThenDelayForever)
+        self.runAction(spawnThenDelayForever, withKey: "spawnPipes")
         
         // setup our bird
         let birdTexture1 = SKTexture(imageNamed: "bird-01")
@@ -133,6 +133,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         scoreLabelNode.text = String(score)
         self.addChild(scoreLabelNode)
         
+    }
+
+    override func willMoveFromView(view: SKView) {
+        self.removeActionForKey("spawnPipes")
+        self.removeActionForKey("flash")
+        self.physicsWorld.contactDelegate = nil
     }
     
     func spawnPipes() {

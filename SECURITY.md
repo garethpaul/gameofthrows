@@ -37,6 +37,8 @@ Gameplay restart paths should guard required SpriteKit scene resources before
 mutating bird, pipe, movement, or score-label state.
 Gameplay contact paths should guard required SpriteKit scene resources before
 score or collision side effects.
+Repeating SpriteKit actions should not retain scenes after presentation ends;
+teardown should remove pending actions and physics contact callbacks.
 
 ## Dependency and Supply Chain Security
 

@@ -73,6 +73,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   reading movement state.
 - Contact handling guards required scene resources before score or collision
   work and avoids delayed `self.bird` access after a crash contact.
+- The repeating spawn action uses a weak scene capture and is removed with
+  pending flash work when the scene leaves its SpriteKit view.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
 - Run `./build.sh` on macOS with Xcode installed. Set `IOS_SIMULATOR_NAME` to
   override only the simulator name, or `IOS_DESTINATION` to provide a full
@@ -117,6 +119,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   verification target guardrails.
 - See `docs/plans/2026-06-09-gameplay-state-guard.md` for the shared
   active-gameplay guard.
+- See `docs/plans/2026-06-10-scene-action-lifecycle.md` for repeating action
+  ownership and scene teardown.
 
 ## Contributing
 

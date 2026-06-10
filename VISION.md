@@ -51,6 +51,8 @@ Current baseline:
   resources so stopped gameplay does not keep adding pipe pairs.
 - Touch, contact, and pipe spawning paths share an active-gameplay guard before
   reading movement state.
+- The scene tears down repeating actions and its physics contact delegate when
+  it leaves the SpriteKit view; the spawn closure does not retain the scene.
 - The local Makefile exposes lint, test, build, and check targets for a stable
   pre-push gate.
 - UI tests keep a launch smoke test for basic app startup coverage.
@@ -74,6 +76,7 @@ Next priorities:
   needs a macOS toolchain
 - Keep touch, contact, and spawn decisions routed through the active-gameplay
   guard while movement state remains an implicitly unwrapped scene node
+- Keep repeating action ownership weak and scene teardown explicit
 - Modernize Swift/project settings in a dedicated pass
 
 Contribution rules:

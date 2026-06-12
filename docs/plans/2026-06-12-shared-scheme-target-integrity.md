@@ -1,12 +1,12 @@
 # Shared Scheme Target Integrity
 
-status: planned
+status: completed
 
 ## Context
 
-`GameOfThrows.xcscheme` includes a testable reference to
+`GameOfThrows.xcscheme` included a testable reference to
 `GameOfThrowsTests.xctest` with BlueprintIdentifier `4374520F193D163800654986`.
-That target no longer exists in `project.pbxproj`; the project contains only the
+That target does not exist in `project.pbxproj`; the project contains only the
 application and UI-test targets.
 
 The hosted baseline parses the project with `xcodebuild -list`, but the local

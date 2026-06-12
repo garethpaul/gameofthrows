@@ -15,7 +15,11 @@ CONTACT_RESOURCE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-contact-resource-guard.md
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-hosted-project-validation.md"
 SCENE_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-10-scene-action-lifecycle.md"
 CI_POLICY_PLAN="$ROOT_DIR/docs/plans/2026-06-12-ci-policy-hardening.md"
+SCHEME_TARGET_PLAN="$ROOT_DIR/docs/plans/2026-06-12-shared-scheme-target-integrity.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
+PROJECT_FILE="$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"
+SHARED_SCHEMES="$ROOT_DIR/GameOfThrows.xcodeproj/xcshareddata/xcschemes"
+APP_SCHEME="$SHARED_SCHEMES/GameOfThrows.xcscheme"
 
 require_file() {
   path=$1
@@ -38,6 +42,8 @@ for path in \
   "build.sh" \
   "GameOfThrows/Info.plist" \
   "GameOfThrows.xcodeproj/project.pbxproj" \
+  "GameOfThrows.xcodeproj/xcshareddata/xcschemes/GameOfThrows.xcscheme" \
+  "GameOfThrows.xcodeproj/xcshareddata/xcschemes/GameOfThrowsUITests.xcscheme" \
   "GameOfThrows/GameScene.swift" \
   "GameOfThrows/GameViewController.swift" \
   "GameOfThrows/AppDelegate.swift" \
@@ -55,7 +61,8 @@ for path in \
   "docs/plans/2026-06-09-score-contact-idempotency.md" \
   "docs/plans/2026-06-10-hosted-project-validation.md" \
   "docs/plans/2026-06-10-scene-action-lifecycle.md" \
-  "docs/plans/2026-06-12-ci-policy-hardening.md"; do
+  "docs/plans/2026-06-12-ci-policy-hardening.md" \
+  "docs/plans/2026-06-12-shared-scheme-target-integrity.md"; do
   require_file "$path"
 done
 
@@ -208,6 +215,26 @@ fi
 
 if ! grep -Fq "GameOfThrowsUITests" "$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"; then
   printf '%s\n' "Xcode project must include the UI test target." >&2
+  exit 1
+fi
+
+native_target_ids=$(sed -n '/Begin PBXNativeTarget section/,/End PBXNativeTarget section/ {
+  s/^[[:space:]]*\([A-F0-9]\{24\}\) \/\*.*/\1/p
+}' "$PROJECT_FILE")
+
+for scheme in "$SHARED_SCHEMES"/*.xcscheme; do
+  blueprint_ids=$(sed -n 's/.*BlueprintIdentifier = "\([^"]*\)".*/\1/p' "$scheme")
+  for blueprint_id in $blueprint_ids; do
+    if ! printf '%s\n' "$native_target_ids" | grep -Fxq "$blueprint_id"; then
+      printf '%s\n' "Shared scheme references missing project target $blueprint_id: $scheme" >&2
+      exit 1
+    fi
+  done
+done
+
+if grep -Fq "GameOfThrowsTests.xctest" "$APP_SCHEME" ||
+  ! grep -Fq "GameOfThrowsUITests.xctest" "$APP_SCHEME"; then
+  printf '%s\n' "App scheme must retain the UI test target without the removed unit test target." >&2
   exit 1
 fi
 
@@ -382,6 +409,12 @@ fi
 if ! grep -Fq "status: completed" "$SCENE_LIFECYCLE_PLAN" ||
   ! grep -Fq "Mutations restoring strong spawn capture or removing teardown must fail" "$SCENE_LIFECYCLE_PLAN"; then
   printf '%s\n' "Scene action lifecycle plan must record completed mutation verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$SCHEME_TARGET_PLAN" ||
+  ! grep -Fq "Mutations restoring the orphaned target" "$SCHEME_TARGET_PLAN"; then
+  printf '%s\n' "Shared scheme target-integrity plan must record completed mutation verification." >&2
   exit 1
 fi
 

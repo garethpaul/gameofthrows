@@ -75,6 +75,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   work and avoids delayed `self.bird` access after a crash contact.
 - The repeating spawn action uses a weak scene capture and is removed with
   pending flash work when the scene leaves its SpriteKit view.
+- Shared schemes may reference only targets present in `project.pbxproj`; the
+  app scheme runs the existing UI launch test without the removed unit-test
+  bundle.
 - Xcode's test action or `xcodebuild test` with the appropriate scheme and destination
 - Run `./build.sh` on macOS with Xcode installed. Set `IOS_SIMULATOR_NAME` to
   override only the simulator name, or `IOS_DESTINATION` to provide a full
@@ -101,6 +104,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   project parsing boundary.
 - See `docs/plans/2026-06-12-ci-policy-hardening.md` for the canonical hosted
   workflow and hostile-mutation boundary.
+- See `docs/plans/2026-06-12-shared-scheme-target-integrity.md` for shared
+  scheme target validation.
 - This looks like an Apple platform project or sample. Xcode, Swift, CocoaPods, and deployment target versions may need to match the original project era.
 - Run `make lint`, `make test`, `make build`, and `make check` before pushing
   changes that touch SpriteKit scene loading, assets, build scripts, project

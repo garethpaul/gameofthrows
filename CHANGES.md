@@ -2,6 +2,8 @@
 
 ## 2026-06-12
 
+- Removed the app scheme's dangling `GameOfThrowsTests` reference and made the
+  baseline reject shared-scheme target identifiers missing from the project.
 - Preserved repository-specific agent instructions for the legacy Swift and
   SpriteKit maintenance workflow.
 - Pinned checkout to the immutable v6.0.3 commit, disabled persisted checkout

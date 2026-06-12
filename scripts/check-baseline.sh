@@ -412,11 +412,34 @@ if ! grep -Fq "status: completed" "$SCENE_LIFECYCLE_PLAN" ||
   exit 1
 fi
 
-if ! grep -Fq "status: completed" "$SCHEME_TARGET_PLAN" ||
-  ! grep -Fq "Mutations restoring the orphaned target" "$SCHEME_TARGET_PLAN"; then
-  printf '%s\n' "Shared scheme target-integrity plan must record completed mutation verification." >&2
-  exit 1
-fi
+python3 - "$SCHEME_TARGET_PLAN" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+plan = Path(sys.argv[1]).read_text()
+statuses = re.findall(r"^status: .+$", plan, flags=re.MULTILINE)
+parts = plan.split("## Verification Completed\n", 1)
+verification = parts[1] if len(parts) == 2 else ""
+required = (
+    "`make lint`, `make test`, `make build`, `make check`",
+    "push run `27392844491`",
+    "pull-request run `27392848940`",
+    "push run `27392863018`",
+    "CodeQL run `27402320931`",
+    "Mutations restoring the orphaned target",
+    "No simulator Test action or runtime gameplay coverage is claimed.",
+)
+
+if (
+    statuses != ["status: completed"]
+    or any(item not in verification for item in required)
+    or re.search(r"\b(?:pending|todo|tbd)\b", verification, re.IGNORECASE)
+):
+    raise SystemExit(
+        "Shared scheme target-integrity plan must remain completed with actual verification recorded."
+    )
+PY
 
 if ! grep -Fq "status: completed" "$CI_POLICY_PLAN" ||
   ! grep -Fq "persist-credentials: false" "$CI_POLICY_PLAN" ||

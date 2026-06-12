@@ -51,3 +51,27 @@ can fail before the remaining launch test runs.
   with an unknown value must fail.
 - Run the scheme Test action on a compatible Xcode and iOS simulator before
   claiming runtime gameplay coverage.
+
+## Work Completed
+
+- Removed the orphaned `GameOfThrowsTests.xctest` reference while retaining
+  the valid `GameOfThrowsUITests.xctest` reference in the shared app scheme.
+- Added a static contract that resolves every shared-scheme
+  `BlueprintIdentifier` against the native targets declared by
+  `project.pbxproj`.
+- Kept the compatible-Xcode requirement explicit so static project validation
+  cannot be mistaken for runtime gameplay coverage.
+
+## Verification Completed
+
+- `make lint`, `make test`, `make build`, `make check`, shell syntax, both
+  shared-scheme XML parses, and `git diff --check` passed locally. The local
+  environment lacks Xcode, so this evidence is limited to the static baseline.
+- Implementation push run `27392844491` and pull-request run `27392848940`
+  passed at commit `e32d324639738acc6aaf2e8fcd2719a9704aa903`; the hosted
+  macOS gate included `xcodebuild -list` project parsing.
+- Post-merge push run `27392863018` and CodeQL run `27402320931` passed at
+  default-branch merge commit `e0361e43735db41c9ebaff1d167f8b451506f7d4`.
+- Mutations restoring the orphaned target or replacing a valid
+  `BlueprintIdentifier` with an unknown target were rejected by `make check`.
+  No simulator Test action or runtime gameplay coverage is claimed.

@@ -56,6 +56,8 @@ Current baseline:
 - The local Makefile exposes lint, test, build, and check targets for a stable
   pre-push gate.
 - UI tests keep a launch smoke test for basic app startup coverage.
+- Shared scheme BlueprintIdentifiers are validated against the Xcode project,
+  and the app scheme contains only the existing UI-test bundle.
 
 Next priorities:
 
@@ -79,6 +81,7 @@ Next priorities:
 - Keep touch, contact, and spawn decisions routed through the active-gameplay
   guard while movement state remains an implicitly unwrapped scene node
 - Keep repeating action ownership weak and scene teardown explicit
+- Keep shared schemes free of dangling project target references
 - Modernize Swift/project settings in a dedicated pass
 
 Contribution rules:

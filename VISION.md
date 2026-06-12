@@ -74,6 +74,8 @@ Next priorities:
   action-driven
 - Keep local verification targets available even while full Xcode execution
   needs a macOS toolchain
+- Keep hosted validation to one bounded, read-only workflow with an immutable
+  checkout action and no persisted checkout credentials
 - Keep touch, contact, and spawn decisions routed through the active-gameplay
   guard while movement state remains an implicitly unwrapped scene node
 - Keep repeating action ownership weak and scene teardown explicit

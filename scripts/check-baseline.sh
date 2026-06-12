@@ -14,6 +14,7 @@ RESTART_RESOURCE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-restart-resource-guard.md
 CONTACT_RESOURCE_PLAN="$ROOT_DIR/docs/plans/2026-06-09-contact-resource-guard.md"
 CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-hosted-project-validation.md"
 SCENE_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-10-scene-action-lifecycle.md"
+CI_POLICY_PLAN="$ROOT_DIR/docs/plans/2026-06-12-ci-policy-hardening.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 
 require_file() {
@@ -25,8 +26,10 @@ require_file() {
 }
 
 for path in \
+  ".github/CODEOWNERS" \
   ".github/workflows/check.yml" \
   ".gitignore" \
+  "AGENTS.md" \
   "CHANGES.md" \
   "Makefile" \
   "README.md" \
@@ -51,7 +54,8 @@ for path in \
   "docs/plans/2026-06-09-single-tap-impulse-guard.md" \
   "docs/plans/2026-06-09-score-contact-idempotency.md" \
   "docs/plans/2026-06-10-hosted-project-validation.md" \
-  "docs/plans/2026-06-10-scene-action-lifecycle.md"; do
+  "docs/plans/2026-06-10-scene-action-lifecycle.md" \
+  "docs/plans/2026-06-12-ci-policy-hardening.md"; do
   require_file "$path"
 done
 
@@ -323,13 +327,49 @@ else
   printf '%s\n' "xcodebuild not found; static GameOfThrows baseline checks passed."
 fi
 
-if ! grep -Fq "contents: read" "$CI_WORKFLOW" ||
-  ! grep -Fq "cancel-in-progress: true" "$CI_WORKFLOW" ||
-  ! grep -Fq "runs-on: macos-15" "$CI_WORKFLOW" ||
-  ! grep -Fq "timeout-minutes: 10" "$CI_WORKFLOW" ||
-  ! grep -Fq "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10" "$CI_WORKFLOW" ||
-  ! grep -Fq "run: make check" "$CI_WORKFLOW"; then
-  printf '%s\n' "GitHub Actions must keep the bounded, least-privilege macOS project check." >&2
+workflow_files=$(find "$ROOT_DIR/.github/workflows" -type f -print)
+if [ "$workflow_files" != "$CI_WORKFLOW" ]; then
+  printf '%s\n' "check.yml must remain the only hosted workflow." >&2
+  exit 1
+fi
+
+expected_workflow=$(mktemp "${TMPDIR:-/tmp}/gameofthrows-check.XXXXXX")
+trap 'rm -f "$expected_workflow"' EXIT HUP INT TERM
+cat >"$expected_workflow" <<'EOF'
+name: Check
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: macos-15
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+        with:
+          persist-credentials: false
+      - name: Run static project baseline
+        run: make check
+EOF
+
+if ! cmp -s "$expected_workflow" "$CI_WORKFLOW"; then
+  printf '%s\n' "GitHub Actions must match the canonical bounded, credential-free macOS check." >&2
+  exit 1
+fi
+
+if [ "$(cat "$ROOT_DIR/.github/CODEOWNERS")" != "* @garethpaul" ]; then
+  printf '%s\n' "CODEOWNERS must assign repository-wide ownership." >&2
   exit 1
 fi
 
@@ -342,5 +382,12 @@ fi
 if ! grep -Fq "status: completed" "$SCENE_LIFECYCLE_PLAN" ||
   ! grep -Fq "Mutations restoring strong spawn capture or removing teardown must fail" "$SCENE_LIFECYCLE_PLAN"; then
   printf '%s\n' "Scene action lifecycle plan must record completed mutation verification." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$CI_POLICY_PLAN" ||
+  ! grep -Fq "persist-credentials: false" "$CI_POLICY_PLAN" ||
+  ! grep -Fq "hostile workflow mutations" "$CI_POLICY_PLAN"; then
+  printf '%s\n' "CI policy hardening plan must record completed mutation verification." >&2
   exit 1
 fi

@@ -1,5 +1,13 @@
 # Changes
 
+## 2026-06-12
+
+- Preserved repository-specific agent instructions for the legacy Swift and
+  SpriteKit maintenance workflow.
+- Pinned checkout to the immutable v6.0.3 commit, disabled persisted checkout
+  credentials, assigned repository ownership, and made the local baseline
+  reject hidden workflows or any drift from the canonical hosted job.
+
 ## 2026-06-10
 
 - Prevented the repeating pipe-spawn action from retaining inactive scenes and

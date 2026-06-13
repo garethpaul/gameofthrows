@@ -23,7 +23,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     let pipeCategory: UInt32 = 1 << 2
     let scoreCategory: UInt32 = 1 << 3
 
+    func cancelBirdDeathRotation() {
+        bird?.removeActionForKey("deathRotation")
+    }
+
     func resetScenePresentation() {
+        cancelBirdDeathRotation()
         self.removeActionForKey("spawnPipes")
         self.removeActionForKey("flash")
         self.removeAllChildren()
@@ -143,6 +148,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
 
     override func willMoveFromView(view: SKView) {
+        cancelBirdDeathRotation()
         self.removeActionForKey("spawnPipes")
         self.removeActionForKey("flash")
         self.physicsWorld.contactDelegate = nil

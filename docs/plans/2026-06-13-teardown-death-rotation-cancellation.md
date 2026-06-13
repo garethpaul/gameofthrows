@@ -1,7 +1,7 @@
 ---
 title: Teardown Death Rotation Cancellation
 type: reliability
-status: planned
+status: completed
 date: 2026-06-13
 ---
 
@@ -36,3 +36,12 @@ or view teardown releases SpriteKit ownership.
 
 - Changing death animation timing, restart eligibility, physics, or scoring.
 - Replacing legacy SpriteKit APIs or project settings.
+
+## Verification Completed
+
+- `make lint`, `make test`, `make build`, and `make check` completed; all four Make gates passed against the same working tree.
+- The five hostile mutations were rejected: helper removal, presentation cleanup
+  reordering, teardown cleanup reordering, stale plan status, and missing
+  verification evidence.
+- xcodebuild was unavailable on the Linux validation host.
+- No SpriteKit runtime, simulator, or device verification is claimed.

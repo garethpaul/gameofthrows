@@ -55,6 +55,7 @@ Current baseline:
   reading movement state.
 - Scene presentation clears prior keyed actions and child nodes before rebuilding gameplay,
   keeping repeated presentation from duplicating interactive scene state.
+- Presentation reset and view teardown cancel the bird's keyed death rotation before releasing child or delegate ownership.
 - Restart cancels pending keyed collision work before restoring bird state so
   an earlier run cannot mutate the new round.
 - The scene tears down repeating actions and its physics contact delegate when

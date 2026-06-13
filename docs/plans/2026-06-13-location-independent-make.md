@@ -2,7 +2,7 @@
 title: Location-Independent GameOfThrows Verification
 type: reliability
 date: 2026-06-13
-status: planned
+status: completed
 execution: code
 ---
 
@@ -45,7 +45,7 @@ documentation, plan status, and recorded external verification.
 
 - Run `make check`, `make lint`, `make test`, and `make build` at repository
   root.
-- Run the full gate from `/tmp` through the absolute Makefile path.
+- Run the full gate from /tmp through the absolute Makefile path.
 - Reject isolated hostile root-derivation, checker-path, documentation,
   plan-status, and verification-evidence mutations.
 - Run shell syntax, plist/XML parsing, `git diff --check`, exact-path review,
@@ -68,8 +68,22 @@ documentation, plan status, and recorded external verification.
 
 ## Work Completed
 
-Pending implementation.
+- Derived the repository root from the loaded Makefile and invoked the static
+  checker through that absolute path.
+- Extended the baseline with rooted-Makefile, completed-plan, external-run, and
+  synchronized-guidance contracts.
+- Preserved all Swift, SpriteKit, Xcode project, plist, asset, workflow,
+  signing, and gameplay surfaces unchanged.
 
 ## Verification Completed
 
-Pending implementation and validation.
+- `make check`, `make lint`, `make test`, and `make build` passed at repository
+  root.
+- The full gate passed from /tmp through the absolute Makefile path.
+- Five isolated hostile root-derivation, checker-path, documentation,
+  plan-status, and verification-evidence mutations were rejected.
+- Shell syntax, plist/XML parsing, `git diff --check`, exact-path review,
+  added-line secret/signing inspection, and generated-artifact inspection
+  passed.
+- Xcode build, simulator, device, UI-test, and gameplay behavior were
+  unavailable on this Linux host and are not claimed.

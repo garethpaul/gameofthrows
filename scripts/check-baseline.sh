@@ -20,6 +20,7 @@ COLLISION_PAIR_PLAN="$ROOT_DIR/docs/plans/2026-06-13-explicit-collision-pairing.
 PRESENTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-13-scene-presentation-idempotency.md"
 RESTART_ROTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-13-restart-death-rotation-cancellation.md"
 TEARDOWN_ROTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-13-teardown-death-rotation-cancellation.md"
+LOCATION_INDEPENDENT_MAKE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-location-independent-make.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 PROJECT_FILE="$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"
 SHARED_SCHEMES="$ROOT_DIR/GameOfThrows.xcodeproj/xcshareddata/xcschemes"
@@ -74,6 +75,21 @@ require_file "docs/plans/2026-06-13-explicit-collision-pairing.md"
 require_file "docs/plans/2026-06-13-scene-presentation-idempotency.md"
 require_file "docs/plans/2026-06-13-restart-death-rotation-cancellation.md"
 require_file "docs/plans/2026-06-13-teardown-death-rotation-cancellation.md"
+require_file "docs/plans/2026-06-13-location-independent-make.md"
+
+if ! grep -Fq 'ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))' "$ROOT_DIR/Makefile" ||
+  ! grep -Fq '"$(ROOT)/scripts/check-baseline.sh"' "$ROOT_DIR/Makefile"; then
+  printf '%s\n' "Makefile verification must resolve the checker from the loaded Makefile." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: completed" "$LOCATION_INDEPENDENT_MAKE_PLAN" ||
+  ! grep -Fq "from /tmp" "$LOCATION_INDEPENDENT_MAKE_PLAN" ||
+  ! grep -Fq "absolute Makefile path" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "Made static verification independent" "$ROOT_DIR/CHANGES.md"; then
+  printf '%s\n' "Location-independent Make plan and guidance must record completed external verification." >&2
+  exit 1
+fi
 
 makefile="$ROOT_DIR/Makefile"
 if ! grep -Eq '^\.PHONY: .*build.*check.*lint.*test|^\.PHONY: .*build.*lint.*test.*check' "$makefile" ||

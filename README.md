@@ -56,6 +56,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   project, script, asset, and crash-hardening checks that do not require Xcode.
   The `lint`, `test`, and `build` targets currently delegate to the static
   baseline.
+- Use the absolute Makefile path to run the same gates from another working
+  directory. Verification resolves the checker relative to the loaded
+  Makefile rather than the caller's directory.
 - The static baseline also preserves the score sensor contract: each pipe score
   zone removes itself after the first contact so a single pass cannot count
   twice.

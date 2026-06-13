@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Cancelled the keyed death rotation before restart restores bird state,
+  preventing a prior collision completion from stopping the new run's bird.
 - Made repeated scene presentation clear prior keyed actions and child nodes
   before rebuilding the gameplay graph.
 - Required explicit bird-world or bird-pipe pairing before contact handling can

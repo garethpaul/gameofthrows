@@ -215,6 +215,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
             return
         }
 
+        bird.removeActionForKey("deathRotation")
+
         // Move bird to original position and reset velocity
         bird.position = CGPointMake(self.frame.size.width / 2.5, CGRectGetMidY(self.frame))
         bird.physicsBody?.velocity = CGVectorMake( 0, 0 )
@@ -339,7 +341,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         moving.speed = 0
 
         bird.physicsBody?.collisionBitMask = worldCategory
-        bird.runAction(  SKAction.rotateByAngle(CGFloat(M_PI) * CGFloat(bird.position.y) * 0.01, duration:1), completion:{bird.speed = 0 })
+        let deathRotation = SKAction.rotateByAngle(CGFloat(M_PI) * CGFloat(bird.position.y) * 0.01, duration:1)
+        let stopBird = SKAction.runBlock({ bird.speed = 0 })
+        bird.runAction(SKAction.sequence([deathRotation, stopBird]), withKey: "deathRotation")
 
 
         // Flash background if contact is detected

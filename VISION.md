@@ -55,6 +55,8 @@ Current baseline:
   reading movement state.
 - Scene presentation clears prior keyed actions and child nodes before rebuilding gameplay,
   keeping repeated presentation from duplicating interactive scene state.
+- Restart cancels pending keyed collision work before restoring bird state so
+  an earlier run cannot mutate the new round.
 - The scene tears down repeating actions and its physics contact delegate when
   it leaves the SpriteKit view; the spawn closure does not retain the scene.
 - The local Makefile exposes lint, test, build, and check targets for a stable

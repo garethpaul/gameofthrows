@@ -1,7 +1,7 @@
 ---
 title: Restart Death Rotation Cancellation
 date: 2026-06-13
-status: planned
+status: completed
 execution: code
 ---
 
@@ -53,8 +53,23 @@ physics, scoring, or the restart gesture.
 
 ## Work Completed
 
-Pending implementation.
+- Converted the existing fatal rotation and final bird stop into one keyed
+  `deathRotation` action sequence.
+- Cancelled the keyed sequence before restart restores bird position, velocity,
+  collision state, speed, rotation, score, or movement.
+- Added source-shape, ordering, documentation, and completed-plan contracts.
 
 ## Verification Completed
 
-Pending implementation and verification.
+- The action key mutation failed after replacing the keyed sequence with an
+  unkeyed run action.
+- The restart cancellation mutation failed after removing the keyed action
+  removal from `resetScene`.
+- The cancellation ordering mutation failed after moving action removal below
+  bird position restoration.
+- Shell syntax, all four Make gates, plist/project/workspace parsing,
+  `git diff --check`, and intended-file artifact and secret scans passed.
+- The hosted pull-request check is a post-push evidence step; its bounded
+  exact-head result is recorded after the implementation commit is pushed.
+- `xcodebuild`, SpriteKit runtime execution, and rapid restart interaction are
+  unavailable on this Linux host and are not claimed.

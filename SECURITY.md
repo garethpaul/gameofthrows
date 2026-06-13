@@ -37,6 +37,8 @@ Gameplay restart paths should guard required SpriteKit scene resources before
 mutating bird, pipe, movement, or score-label state.
 Gameplay contact paths should guard required SpriteKit scene resources before
 score or collision side effects.
+Only explicit bird-world or bird-pipe contacts should trigger game-over;
+unrelated sensor contacts should not mutate movement or restart state.
 Repeating SpriteKit actions should not retain scenes after presentation ends;
 teardown should remove pending actions and physics contact callbacks.
 

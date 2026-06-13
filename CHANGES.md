@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-13
+
+- Required explicit bird-world or bird-pipe pairing before contact handling can
+  stop gameplay, leaving unrelated physics contacts without side effects.
+
 ## 2026-06-12
 
 - Removed the app scheme's dangling `GameOfThrowsTests` reference and made the

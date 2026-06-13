@@ -61,6 +61,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   twice.
 - Score increments are limited to bird-score contacts, so future physics
   category changes cannot accidentally award points for non-player contacts.
+- For game-over handling, only explicit bird-world or bird-pipe contacts end a run;
+  unrelated physics contacts are ignored.
 - Touch handling applies one bird impulse per touch event and guards missing
   bird physics before flapping.
 - Restart resets the score label scale as well as the score value so prior

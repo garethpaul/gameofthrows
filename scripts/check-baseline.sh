@@ -16,6 +16,7 @@ CI_PLAN="$ROOT_DIR/docs/plans/2026-06-10-hosted-project-validation.md"
 SCENE_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-10-scene-action-lifecycle.md"
 CI_POLICY_PLAN="$ROOT_DIR/docs/plans/2026-06-12-ci-policy-hardening.md"
 SCHEME_TARGET_PLAN="$ROOT_DIR/docs/plans/2026-06-12-shared-scheme-target-integrity.md"
+COLLISION_PAIR_PLAN="$ROOT_DIR/docs/plans/2026-06-13-explicit-collision-pairing.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 PROJECT_FILE="$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"
 SHARED_SCHEMES="$ROOT_DIR/GameOfThrows.xcodeproj/xcshareddata/xcschemes"
@@ -66,12 +67,42 @@ for path in \
   require_file "$path"
 done
 
+require_file "docs/plans/2026-06-13-explicit-collision-pairing.md"
+
 makefile="$ROOT_DIR/Makefile"
 if ! grep -Eq '^\.PHONY: .*build.*check.*lint.*test|^\.PHONY: .*build.*lint.*test.*check' "$makefile" ||
   ! grep -Fq "lint test build: check" "$makefile"; then
   printf '%s\n' "Makefile must expose lint, test, build, and check gate targets." >&2
   exit 1
 fi
+
+python3 - "$ROOT_DIR/GameOfThrows/GameScene.swift" <<'PY'
+import sys
+from pathlib import Path
+
+source = Path(sys.argv[1]).read_text()
+required = (
+    "func isBirdCollisionContact(contact: SKPhysicsContact) -> Bool",
+    "let bodyAIsObstacle = bodyMatchesCategory(contact.bodyA, category: worldCategory) ||",
+    "bodyMatchesCategory(contact.bodyA, category: pipeCategory)",
+    "let bodyBIsObstacle = bodyMatchesCategory(contact.bodyB, category: worldCategory) ||",
+    "bodyMatchesCategory(contact.bodyB, category: pipeCategory)",
+    "return (bodyAIsBird && bodyBIsObstacle) || (bodyBIsBird && bodyAIsObstacle)",
+    "if !isBirdCollisionContact(contact)",
+)
+if any(source.count(item) != 1 for item in required):
+    raise SystemExit("GameScene must classify fatal contacts as explicit bird-world or bird-pipe pairs.")
+
+score = source.index("if let scoringNode = scoreContactNode(contact)")
+collision = source.index("if !isBirdCollisionContact(contact)")
+game_over = source.index("moving.speed = 0", collision)
+if not score < collision < game_over:
+    raise SystemExit("GameScene must handle scoring before fatal collision classification and side effects.")
+
+helper = source[source.index("func isBirdCollisionContact"):source.index("override func update")]
+if "scoreCategory" in helper:
+    raise SystemExit("Score sensors must not be classified as fatal collision bodies.")
+PY
 
 sh -n "$ROOT_DIR/build.sh"
 sh -n "$ROOT_DIR/scripts/check-baseline.sh"
@@ -409,6 +440,40 @@ fi
 if ! grep -Fq "status: completed" "$SCENE_LIFECYCLE_PLAN" ||
   ! grep -Fq "Mutations restoring strong spawn capture or removing teardown must fail" "$SCENE_LIFECYCLE_PLAN"; then
   printf '%s\n' "Scene action lifecycle plan must record completed mutation verification." >&2
+  exit 1
+fi
+
+python3 - "$COLLISION_PAIR_PLAN" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+plan = Path(sys.argv[1]).read_text()
+frontmatter = plan.split("---", 2)[1]
+statuses = re.findall(r"^status: .+$", frontmatter, flags=re.MULTILINE)
+verification = plan.split("## Verification Completed\n", 1)[-1]
+required = (
+    "collision guard mutation failed",
+    "score-as-collision mutation failed",
+    "classification order mutation failed",
+    "hosted pull-request check",
+)
+if (
+    statuses != ["status: completed"]
+    or "## Verification Completed\n" not in plan
+    or any(item not in verification for item in required)
+    or re.search(r"\b(?:pending|todo|tbd|not run)\b", verification, re.IGNORECASE)
+):
+    raise SystemExit(
+        "Explicit collision pairing plan must remain completed with actual verification recorded."
+    )
+PY
+
+if ! grep -Fq "only explicit bird-world or bird-pipe contacts end a run" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "Only explicit bird-world or bird-pipe contacts should trigger game-over" "$ROOT_DIR/SECURITY.md" ||
+  ! grep -Fq "Only explicit bird-world or bird-pipe contacts stop gameplay" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "Required explicit bird-world or bird-pipe pairing" "$ROOT_DIR/CHANGES.md"; then
+  printf '%s\n' "Project guidance must document explicit fatal collision pairing." >&2
   exit 1
 fi
 

@@ -53,6 +53,8 @@ Current baseline:
   resources so stopped gameplay does not keep adding pipe pairs.
 - Touch, contact, and pipe spawning paths share an active-gameplay guard before
   reading movement state.
+- Scene presentation clears prior keyed actions and child nodes before rebuilding gameplay,
+  keeping repeated presentation from duplicating interactive scene state.
 - The scene tears down repeating actions and its physics contact delegate when
   it leaves the SpriteKit view; the spawn closure does not retain the scene.
 - The local Makefile exposes lint, test, build, and check targets for a stable

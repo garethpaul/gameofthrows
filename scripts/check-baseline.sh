@@ -17,6 +17,7 @@ SCENE_LIFECYCLE_PLAN="$ROOT_DIR/docs/plans/2026-06-10-scene-action-lifecycle.md"
 CI_POLICY_PLAN="$ROOT_DIR/docs/plans/2026-06-12-ci-policy-hardening.md"
 SCHEME_TARGET_PLAN="$ROOT_DIR/docs/plans/2026-06-12-shared-scheme-target-integrity.md"
 COLLISION_PAIR_PLAN="$ROOT_DIR/docs/plans/2026-06-13-explicit-collision-pairing.md"
+PRESENTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-13-scene-presentation-idempotency.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 PROJECT_FILE="$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"
 SHARED_SCHEMES="$ROOT_DIR/GameOfThrows.xcodeproj/xcshareddata/xcschemes"
@@ -68,6 +69,7 @@ for path in \
 done
 
 require_file "docs/plans/2026-06-13-explicit-collision-pairing.md"
+require_file "docs/plans/2026-06-13-scene-presentation-idempotency.md"
 
 makefile="$ROOT_DIR/Makefile"
 if ! grep -Eq '^\.PHONY: .*build.*check.*lint.*test|^\.PHONY: .*build.*lint.*test.*check' "$makefile" ||
@@ -81,6 +83,26 @@ import sys
 from pathlib import Path
 
 source = Path(sys.argv[1]).read_text()
+presentation_helper = source[
+    source.index("func resetScenePresentation"):
+    source.index("override func didMoveToView")
+]
+presentation = source[
+    source.index("override func didMoveToView"):
+    source.index("override func willMoveFromView")
+]
+presentation_required = (
+    'self.removeActionForKey("spawnPipes")',
+    'self.removeActionForKey("flash")',
+    "self.removeAllChildren()",
+)
+if any(presentation_helper.count(item) != 1 for item in presentation_required):
+    raise SystemExit("Scene presentation reset must remove keyed actions and prior children.")
+if presentation.count("resetScenePresentation()") != 1:
+    raise SystemExit("didMoveToView must reset prior scene presentation state exactly once.")
+if presentation.index("resetScenePresentation()") > presentation.index("canRestart = false"):
+    raise SystemExit("Scene presentation reset must run before gameplay setup begins.")
+
 required = (
     "func isBirdCollisionContact(contact: SKPhysicsContact) -> Bool",
     "let bodyAIsObstacle = bodyMatchesCategory(contact.bodyA, category: worldCategory) ||",
@@ -469,11 +491,46 @@ if (
     )
 PY
 
+python3 - "$PRESENTATION_PLAN" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+plan = Path(sys.argv[1]).read_text()
+frontmatter = plan.split("---", 2)[1]
+statuses = re.findall(r"^status: .+$", frontmatter, flags=re.MULTILINE)
+verification = plan.split("## Verification Completed\n", 1)[-1]
+required = (
+    "presentation reset mutation failed",
+    "child cleanup mutation failed",
+    "setup ordering mutation failed",
+    "hosted pull-request check",
+)
+if (
+    statuses != ["status: completed"]
+    or "## Verification Completed\n" not in plan
+    or any(item not in verification for item in required)
+    or re.search(r"\b(?:pending|todo|tbd|not run)\b", verification, re.IGNORECASE)
+):
+    raise SystemExit(
+        "Scene presentation idempotency plan must remain completed with actual verification recorded."
+    )
+PY
+
 if ! grep -Fq "only explicit bird-world or bird-pipe contacts end a run" "$ROOT_DIR/README.md" ||
   ! grep -Fq "Only explicit bird-world or bird-pipe contacts should trigger game-over" "$ROOT_DIR/SECURITY.md" ||
   ! grep -Fq "Only explicit bird-world or bird-pipe contacts stop gameplay" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "Required explicit bird-world or bird-pipe pairing" "$ROOT_DIR/CHANGES.md"; then
   printf '%s\n' "Project guidance must document explicit fatal collision pairing." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Scene presentation clears prior keyed actions and child nodes before rebuilding gameplay" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "Scene presentation should clear prior keyed actions and child nodes before rebuilding gameplay" "$ROOT_DIR/SECURITY.md" ||
+  ! grep -Fq "Scene presentation clears prior keyed actions and child nodes before rebuilding gameplay" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "Made repeated scene presentation clear prior keyed actions and child nodes" "$ROOT_DIR/CHANGES.md" ||
+  ! grep -Fq "Clear prior keyed actions and child nodes before rebuilding a presented scene" "$ROOT_DIR/AGENTS.md"; then
+  printf '%s\n' "Project guidance must document idempotent scene presentation." >&2
   exit 1
 fi
 

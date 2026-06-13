@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Made repeated scene presentation clear prior keyed actions and child nodes
+  before rebuilding the gameplay graph.
 - Required explicit bird-world or bird-pipe pairing before contact handling can
   stop gameplay, leaving unrelated physics contacts without side effects.
 

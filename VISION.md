@@ -41,6 +41,8 @@ Current baseline:
   sensor after its first hit.
 - Score increments require an explicit bird-score contact so unrelated physics
   bodies cannot award points if contact categories change later.
+- Only explicit bird-world or bird-pipe contacts stop gameplay; unrelated
+  physics contacts are ignored.
 - Restart resets score label scale so score animations do not leak into the
   next run.
 - Restart checks required scene resources before resetting bird position,

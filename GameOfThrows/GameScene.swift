@@ -278,6 +278,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
 
         return nil
     }
+
+    func isBirdCollisionContact(contact: SKPhysicsContact) -> Bool {
+        let bodyAIsBird = bodyMatchesCategory(contact.bodyA, category: birdCategory)
+        let bodyBIsBird = bodyMatchesCategory(contact.bodyB, category: birdCategory)
+        let bodyAIsObstacle = bodyMatchesCategory(contact.bodyA, category: worldCategory) ||
+            bodyMatchesCategory(contact.bodyA, category: pipeCategory)
+        let bodyBIsObstacle = bodyMatchesCategory(contact.bodyB, category: worldCategory) ||
+            bodyMatchesCategory(contact.bodyB, category: pipeCategory)
+
+        return (bodyAIsBird && bodyBIsObstacle) || (bodyBIsBird && bodyAIsObstacle)
+    }
     
     
     override func update(currentTime: CFTimeInterval) {
@@ -311,23 +322,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
 
             // Add a little visual feedback for the score increment
             scoreLabelNode.runAction(SKAction.sequence([SKAction.scaleTo(1.5, duration:NSTimeInterval(0.1)), SKAction.scaleTo(1.0, duration:NSTimeInterval(0.1))]))
-        } else {
-
-            moving.speed = 0
-
-            bird.physicsBody?.collisionBitMask = worldCategory
-            bird.runAction(  SKAction.rotateByAngle(CGFloat(M_PI) * CGFloat(bird.position.y) * 0.01, duration:1), completion:{bird.speed = 0 })
-
-
-            // Flash background if contact is detected
-            self.removeActionForKey("flash")
-            self.runAction(SKAction.sequence([SKAction.repeatAction(SKAction.sequence([SKAction.runBlock({
-                self.backgroundColor = SKColor(red: 1, green: 0, blue: 0, alpha: 1.0)
-                }),SKAction.waitForDuration(NSTimeInterval(0.05)), SKAction.runBlock({
-                    self.backgroundColor = skyColor
-                    }), SKAction.waitForDuration(NSTimeInterval(0.05))]), count:4), SKAction.runBlock({
-                        self.canRestart = true
-                        })]), withKey: "flash")
+            return
         }
+
+        if !isBirdCollisionContact(contact) {
+            return
+        }
+
+        moving.speed = 0
+
+        bird.physicsBody?.collisionBitMask = worldCategory
+        bird.runAction(  SKAction.rotateByAngle(CGFloat(M_PI) * CGFloat(bird.position.y) * 0.01, duration:1), completion:{bird.speed = 0 })
+
+
+        // Flash background if contact is detected
+        self.removeActionForKey("flash")
+        self.runAction(SKAction.sequence([SKAction.repeatAction(SKAction.sequence([SKAction.runBlock({
+            self.backgroundColor = SKColor(red: 1, green: 0, blue: 0, alpha: 1.0)
+            }),SKAction.waitForDuration(NSTimeInterval(0.05)), SKAction.runBlock({
+                self.backgroundColor = skyColor
+                }), SKAction.waitForDuration(NSTimeInterval(0.05))]), count:4), SKAction.runBlock({
+                    self.canRestart = true
+                    })]), withKey: "flash")
     }
 }

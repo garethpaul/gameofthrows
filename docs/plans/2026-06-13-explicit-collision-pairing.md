@@ -1,7 +1,7 @@
 ---
 title: Explicit Bird Collision Pairing
 date: 2026-06-13
-status: in_progress
+status: completed
 execution: code
 ---
 
@@ -47,3 +47,27 @@ or score behavior.
   fail.
 - Take one bounded exact-head pull-request and CodeQL snapshot after push; do
   not poll.
+
+## Work Completed
+
+- Added explicit symmetric bird-to-world-or-pipe contact classification using
+  the existing category bitmask helper.
+- Preserved bird-score handling first, then returned early for contacts that
+  are neither scoring nor fatal collisions.
+- Kept existing collision masks, movement stop, rotation, flash, and restart
+  behavior unchanged for current bird-world and bird-pipe contacts.
+- Added source-order, category-scope, documentation, and completed-plan
+  regression contracts.
+
+## Verification Completed
+
+- A pristine copied tree passed `make check` with completed-plan evidence
+  supplied in the copy.
+- The collision guard mutation failed after removing the explicit classifier
+  call.
+- The score-as-collision mutation failed after adding `scoreCategory` to the
+  fatal obstacle helper.
+- The classification order mutation failed after moving fatal classification
+  before score handling.
+- The hosted pull-request check is a post-push evidence step; its bounded
+  exact-head result is recorded after the implementation commit is pushed.

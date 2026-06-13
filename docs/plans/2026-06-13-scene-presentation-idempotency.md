@@ -1,7 +1,7 @@
 ---
 title: Idempotent Scene Presentation
 date: 2026-06-13
-status: planned
+status: completed
 execution: code
 ---
 
@@ -53,8 +53,24 @@ preserving the current first-presentation behavior.
 
 ## Work Completed
 
-- Pending implementation.
+- Added a scene-presentation reset helper that removes the pipe-spawn and flash
+  actions plus the prior child graph.
+- Ran the reset before `didMoveToView` initializes gameplay state or inserts any
+  replacement nodes.
+- Added static helper-content, invocation-count, setup-order, documentation,
+  and completed-plan contracts.
+- Documented the repeated-presentation boundary in project guidance and change
+  history.
 
 ## Verification Completed
 
-- Pending implementation and verification.
+- A pristine copied tree passed `make check` with completed-plan evidence
+  supplied in the copy.
+- The presentation reset mutation failed after removing the cleanup call from
+  `didMoveToView`.
+- The child cleanup mutation failed after removing `removeAllChildren()` from
+  the reset helper.
+- The setup ordering mutation failed after moving cleanup below initial gameplay
+  state setup.
+- The hosted pull-request check is a post-push evidence step; its bounded
+  exact-head result is recorded after the implementation commit is pushed.

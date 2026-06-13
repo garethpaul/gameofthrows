@@ -77,6 +77,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   work and avoids delayed `self.bird` access after a crash contact.
 - The repeating spawn action uses a weak scene capture and is removed with
   pending flash work when the scene leaves its SpriteKit view.
+- Scene presentation clears prior keyed actions and child nodes before rebuilding gameplay,
+  preventing duplicate physics and rendering graphs when a scene is presented again.
 - Shared schemes may reference only targets present in `project.pbxproj`; the
   app scheme runs the existing UI launch test without the removed unit-test
   bundle.

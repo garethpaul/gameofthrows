@@ -22,8 +22,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     let worldCategory: UInt32 = 1 << 1
     let pipeCategory: UInt32 = 1 << 2
     let scoreCategory: UInt32 = 1 << 3
+
+    func resetScenePresentation() {
+        self.removeActionForKey("spawnPipes")
+        self.removeActionForKey("flash")
+        self.removeAllChildren()
+    }
     
     override func didMoveToView(view: SKView) {
+        resetScenePresentation()
         
         canRestart = false
         

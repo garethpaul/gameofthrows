@@ -55,6 +55,7 @@ maintenance baseline for the legacy Xcode project.
   and documentation intentionally change with it.
 - Keep repeating SpriteKit actions weakly captured and remove scene actions and
   contact callbacks when a scene leaves its view.
+- Clear prior keyed actions and child nodes before rebuilding a presented scene.
 - Run `make lint`, `make test`, `make build`, and `make check` before pushing changes that touch SpriteKit scene loading, assets, build scripts, project files, or UI test setup.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.

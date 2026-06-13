@@ -79,6 +79,7 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   pending flash work when the scene leaves its SpriteKit view.
 - Scene presentation clears prior keyed actions and child nodes before rebuilding gameplay,
   preventing duplicate physics and rendering graphs when a scene is presented again.
+- Presentation reset and view teardown cancel the bird's keyed death rotation before releasing child or delegate ownership.
 - Restart cancels the keyed death rotation before restoring bird state, so a
   prior collision cannot stop animation in the new run.
 - Shared schemes may reference only targets present in `project.pbxproj`; the

@@ -43,6 +43,7 @@ Repeating SpriteKit actions should not retain scenes after presentation ends;
 teardown should remove pending actions and physics contact callbacks.
 Scene presentation should clear prior keyed actions and child nodes before rebuilding gameplay
 so stale physics bodies cannot remain active after re-presentation.
+Presentation reset and view teardown should cancel the bird's keyed death rotation before child or contact-delegate cleanup.
 Restart should cancel pending keyed collision actions before restoring bird state
 so stale completions cannot mutate a new gameplay round.
 

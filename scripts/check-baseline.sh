@@ -19,6 +19,7 @@ SCHEME_TARGET_PLAN="$ROOT_DIR/docs/plans/2026-06-12-shared-scheme-target-integri
 COLLISION_PAIR_PLAN="$ROOT_DIR/docs/plans/2026-06-13-explicit-collision-pairing.md"
 PRESENTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-13-scene-presentation-idempotency.md"
 RESTART_ROTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-13-restart-death-rotation-cancellation.md"
+TEARDOWN_ROTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-13-teardown-death-rotation-cancellation.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 PROJECT_FILE="$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"
 SHARED_SCHEMES="$ROOT_DIR/GameOfThrows.xcodeproj/xcshareddata/xcschemes"
@@ -72,6 +73,7 @@ done
 require_file "docs/plans/2026-06-13-explicit-collision-pairing.md"
 require_file "docs/plans/2026-06-13-scene-presentation-idempotency.md"
 require_file "docs/plans/2026-06-13-restart-death-rotation-cancellation.md"
+require_file "docs/plans/2026-06-13-teardown-death-rotation-cancellation.md"
 
 makefile="$ROOT_DIR/Makefile"
 if ! grep -Eq '^\.PHONY: .*build.*check.*lint.*test|^\.PHONY: .*build.*lint.*test.*check' "$makefile" ||
@@ -85,6 +87,10 @@ import sys
 from pathlib import Path
 
 source = Path(sys.argv[1]).read_text()
+rotation_helper = source[
+    source.index("func cancelBirdDeathRotation"):
+    source.index("func resetScenePresentation")
+]
 presentation_helper = source[
     source.index("func resetScenePresentation"):
     source.index("override func didMoveToView")
@@ -93,6 +99,22 @@ presentation = source[
     source.index("override func didMoveToView"):
     source.index("override func willMoveFromView")
 ]
+teardown = source[
+    source.index("override func willMoveFromView"):
+    source.index("func spawnPipes")
+]
+cancel_rotation_helper = "cancelBirdDeathRotation()"
+optional_rotation_cancel = 'bird?.removeActionForKey("deathRotation")'
+if rotation_helper.count(optional_rotation_cancel) != 1:
+    raise SystemExit("Bird death rotation helper must cancel the keyed action exactly once when present.")
+if presentation_helper.count(cancel_rotation_helper) != 1:
+    raise SystemExit("Scene presentation reset must cancel bird death rotation exactly once.")
+if presentation_helper.index(cancel_rotation_helper) > presentation_helper.index("self.removeAllChildren()"):
+    raise SystemExit("Scene presentation reset must cancel bird death rotation before child cleanup.")
+if teardown.count(cancel_rotation_helper) != 1:
+    raise SystemExit("View teardown must cancel bird death rotation exactly once.")
+if teardown.index(cancel_rotation_helper) > teardown.index("self.physicsWorld.contactDelegate = nil"):
+    raise SystemExit("View teardown must cancel bird death rotation before contact delegate cleanup.")
 presentation_required = (
     'self.removeActionForKey("spawnPipes")',
     'self.removeActionForKey("flash")',
@@ -566,11 +588,46 @@ if (
     )
 PY
 
+python3 - "$TEARDOWN_ROTATION_PLAN" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+plan = Path(sys.argv[1]).read_text()
+frontmatter = plan.split("---", 2)[1]
+statuses = re.findall(r"^status: .+$", frontmatter, flags=re.MULTILINE)
+verification = plan.split("## Verification Completed\n", 1)[-1]
+required = (
+    "five hostile mutations were rejected",
+    "all four Make gates passed",
+    "xcodebuild was unavailable",
+    "No SpriteKit runtime",
+)
+if (
+    statuses != ["status: completed"]
+    or "## Verification Completed\n" not in plan
+    or any(item not in verification for item in required)
+    or re.search(r"\b(?:pending|todo|tbd|not run)\b", verification, re.IGNORECASE)
+):
+    raise SystemExit(
+        "Teardown death rotation cancellation plan must remain completed with actual verification recorded."
+    )
+PY
+
 if ! grep -Fq "only explicit bird-world or bird-pipe contacts end a run" "$ROOT_DIR/README.md" ||
   ! grep -Fq "Only explicit bird-world or bird-pipe contacts should trigger game-over" "$ROOT_DIR/SECURITY.md" ||
   ! grep -Fq "Only explicit bird-world or bird-pipe contacts stop gameplay" "$ROOT_DIR/VISION.md" ||
   ! grep -Fq "Required explicit bird-world or bird-pipe pairing" "$ROOT_DIR/CHANGES.md"; then
   printf '%s\n' "Project guidance must document explicit fatal collision pairing." >&2
+  exit 1
+fi
+
+if ! grep -Fq "Presentation reset and view teardown cancel the bird's keyed death rotation before releasing child or delegate ownership" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "Presentation reset and view teardown should cancel the bird's keyed death rotation before child or contact-delegate cleanup" "$ROOT_DIR/SECURITY.md" ||
+  ! grep -Fq "Presentation reset and view teardown cancel the bird's keyed death rotation before releasing child or delegate ownership" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "Cancelled the bird's keyed death rotation before scene presentation reset and view teardown cleanup" "$ROOT_DIR/CHANGES.md" ||
+  ! grep -Fq "Cancel keyed bird collision actions before removing scene children or clearing the physics contact delegate" "$ROOT_DIR/AGENTS.md"; then
+  printf '%s\n' "Project guidance must document cancellation before scene ownership cleanup." >&2
   exit 1
 fi
 

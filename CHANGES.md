@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Made static verification independent of the caller's working directory by
+  resolving the baseline checker from the loaded Makefile.
 - Cancelled the bird's keyed death rotation before scene presentation reset and view teardown cleanup.
 - Cancelled the keyed death rotation before restart restores bird state,
   preventing a prior collision completion from stopping the new run's bird.

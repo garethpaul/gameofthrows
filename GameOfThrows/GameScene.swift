@@ -308,6 +308,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     override func update(currentTime: CFTimeInterval) {
         /* Called before each frame is rendered */
+        if !isGameplayRunning() {
+            return
+        }
+
         guard let bird = bird, let physicsBody = bird.physicsBody else {
             return
         }

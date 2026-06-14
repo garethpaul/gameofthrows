@@ -58,6 +58,8 @@ maintenance baseline for the legacy Xcode project.
 - Clear prior keyed actions and child nodes before rebuilding a presented scene.
 - Cancel keyed bird collision actions before removing scene children or clearing the physics contact delegate.
 - Cancel pending keyed collision actions before restoring restart state.
+- Keep per-frame flight rotation behind the active-gameplay guard so the keyed
+  death-rotation action owns bird rotation after a fatal collision.
 - Run `make lint`, `make test`, `make build`, and `make check` before pushing changes that touch SpriteKit scene loading, assets, build scripts, project files, or UI test setup.
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.

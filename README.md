@@ -85,6 +85,8 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - Presentation reset and view teardown cancel the bird's keyed death rotation before releasing child or delegate ownership.
 - Restart cancels the keyed death rotation before restoring bird state, so a
   prior collision cannot stop animation in the new run.
+- Per-frame flight orientation stops with active gameplay so it cannot
+  overwrite the keyed death rotation after a fatal collision.
 - Shared schemes may reference only targets present in `project.pbxproj`; the
   app scheme runs the existing UI launch test without the removed unit-test
   bundle.

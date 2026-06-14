@@ -46,6 +46,8 @@ so stale physics bodies cannot remain active after re-presentation.
 Presentation reset and view teardown should cancel the bird's keyed death rotation before child or contact-delegate cleanup.
 Restart should cancel pending keyed collision actions before restoring bird state
 so stale completions cannot mutate a new gameplay round.
+Per-frame flight orientation should stop when gameplay stops so it cannot
+compete with the keyed death-rotation action after a fatal collision.
 
 ## Dependency and Supply Chain Security
 

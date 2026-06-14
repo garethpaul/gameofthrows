@@ -58,6 +58,8 @@ Current baseline:
 - Presentation reset and view teardown cancel the bird's keyed death rotation before releasing child or delegate ownership.
 - Restart cancels pending keyed collision work before restoring bird state so
   an earlier run cannot mutate the new round.
+- Per-frame flight orientation stops when gameplay stops, leaving fatal-contact
+  death rotation under one keyed action owner.
 - The scene tears down repeating actions and its physics contact delegate when
   it leaves the SpriteKit view; the spawn closure does not retain the scene.
 - The local Makefile exposes lint, test, build, and check targets for a stable

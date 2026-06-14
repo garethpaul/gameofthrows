@@ -21,6 +21,8 @@ PRESENTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-13-scene-presentation-idempotenc
 RESTART_ROTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-13-restart-death-rotation-cancellation.md"
 TEARDOWN_ROTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-13-teardown-death-rotation-cancellation.md"
 LOCATION_INDEPENDENT_MAKE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-location-independent-make.md"
+UPDATE_ROTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-14-update-rotation-ownership.md"
+UPDATE_ROTATION_CHECK="$ROOT_DIR/scripts/check-update-rotation-ownership.py"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 PROJECT_FILE="$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"
 SHARED_SCHEMES="$ROOT_DIR/GameOfThrows.xcodeproj/xcshareddata/xcschemes"
@@ -54,6 +56,8 @@ for path in \
   "GameOfThrows/AppDelegate.swift" \
   "GameOfThrowsUITests/Info.plist" \
   "GameOfThrowsUITests/GameOfThrowsUITests.swift" \
+  "scripts/check-update-rotation-ownership.py" \
+  "docs/plans/2026-06-14-update-rotation-ownership.md" \
   "docs/plans/2026-06-09-score-label-restart-reset.md" \
   "docs/plans/2026-06-09-contact-resource-guard.md" \
   "docs/plans/2026-06-09-score-contact-bird-pairing.md" \
@@ -76,6 +80,11 @@ require_file "docs/plans/2026-06-13-scene-presentation-idempotency.md"
 require_file "docs/plans/2026-06-13-restart-death-rotation-cancellation.md"
 require_file "docs/plans/2026-06-13-teardown-death-rotation-cancellation.md"
 require_file "docs/plans/2026-06-13-location-independent-make.md"
+
+python3 "$UPDATE_ROTATION_CHECK" \
+  "$ROOT_DIR/GameOfThrows/GameScene.swift" \
+  "$UPDATE_ROTATION_PLAN" \
+  "$ROOT_DIR/scripts/check-baseline.sh"
 
 if ! grep -Fq 'ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))' "$ROOT_DIR/Makefile" ||
   ! grep -Fq '"$(ROOT)/scripts/check-baseline.sh"' "$ROOT_DIR/Makefile"; then

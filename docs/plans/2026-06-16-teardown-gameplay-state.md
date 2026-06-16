@@ -1,7 +1,7 @@
 ---
 title: Teardown Gameplay State
 type: reliability
-status: planned
+status: completed
 date: 2026-06-16
 execution: code
 ---
@@ -94,3 +94,30 @@ Files: `docs/plans/2026-06-16-teardown-gameplay-state.md`
 - `willMoveFromView` is the repository's authoritative scene teardown hook.
 - The existing `isGameplayRunning()` predicate remains the shared gate for
   touch, contact, pipe-spawn, and frame-update work.
+
+## Work Completed
+
+- Stopped the optional moving graph at the start of `willMoveFromView`, before
+  keyed action cancellation and contact-delegate cleanup.
+- Added an order-sensitive static contract for optional safety, the stopped
+  state, and teardown ownership ordering.
+- Updated project guidance and change history with the shared gameplay-predicate
+  lifecycle boundary.
+
+## Verification Completed
+
+- `sh -n scripts/check-baseline.sh` and `sh -n build.sh` passed.
+- All four Make gates passed: `make check`, `make lint`, `make test`, and
+  `make build`.
+- External-directory `make check` passed through the absolute Makefile path.
+- Eight isolated mutations were rejected: movement-stop removal, unsafe access,
+  wrong state, action-order drift, delegate-order drift, guidance removal,
+  stale plan status, and missing bounded-observation evidence.
+- Compound Engineering review reported no actionable findings or testing gaps.
+- `xcodebuild` was unavailable on the Linux host. No SpriteKit runtime,
+  simulator, device, physics-contact, rendering, or transition timing execution
+  is claimed.
+- PR #14 exact-head snapshot at `1bed3fc2b1be35cec053300cb34d8f0c919c2938`
+  showed the canonical macOS `check` in progress, an OPEN and MERGEABLE pull
+  request, and zero open CodeQL, Dependabot, or secret-scanning alerts. No
+  polling wait was started.

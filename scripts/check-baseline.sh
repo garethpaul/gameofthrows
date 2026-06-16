@@ -748,3 +748,35 @@ if ! grep -Fq "status: completed" "$CI_POLICY_PLAN" ||
   printf '%s\n' "CI policy hardening plan must record completed mutation verification." >&2
   exit 1
 fi
+
+python3 - "$TEARDOWN_GAMEPLAY_PLAN" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+plan = Path(sys.argv[1]).read_text()
+frontmatter = plan.split("---", 2)[1]
+statuses = re.findall(r"^status: .+$", frontmatter, flags=re.MULTILINE)
+verification = plan.split("## Verification Completed\n", 1)[-1]
+normalized_verification = " ".join(verification.split())
+required = (
+    "All four Make gates passed",
+    "External-directory `make check` passed",
+    "Eight isolated mutations were rejected",
+    "no actionable findings or testing gaps",
+    "`xcodebuild` was unavailable",
+    "No SpriteKit runtime",
+    "PR #14 exact-head snapshot",
+    "canonical macOS `check` in progress",
+    "No polling wait was started",
+)
+if (
+    statuses != ["status: completed"]
+    or "## Verification Completed\n" not in plan
+    or any(item not in normalized_verification for item in required)
+    or re.search(r"\b(?:todo|tbd|not run)\b", verification, re.IGNORECASE)
+):
+    raise SystemExit(
+        "Teardown gameplay state plan must record completed status, actual verification, and the runtime boundary."
+    )
+PY

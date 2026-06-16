@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-16
+
+- Stopped the moving gameplay graph before scene teardown releases keyed
+  actions and physics contact ownership, so late callbacks fail the shared
+  active-gameplay guard.
+
 ## 2026-06-14
 
 - Stopped per-frame flight orientation after gameplay ends so the keyed death

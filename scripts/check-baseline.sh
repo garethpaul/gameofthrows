@@ -23,6 +23,7 @@ TEARDOWN_ROTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-13-teardown-death-rotation-
 LOCATION_INDEPENDENT_MAKE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-location-independent-make.md"
 UPDATE_ROTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-14-update-rotation-ownership.md"
 UPDATE_ROTATION_CHECK="$ROOT_DIR/scripts/check-update-rotation-ownership.py"
+TEARDOWN_GAMEPLAY_PLAN="$ROOT_DIR/docs/plans/2026-06-16-teardown-gameplay-state.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 PROJECT_FILE="$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"
 SHARED_SCHEMES="$ROOT_DIR/GameOfThrows.xcodeproj/xcshareddata/xcschemes"
@@ -80,6 +81,7 @@ require_file "docs/plans/2026-06-13-scene-presentation-idempotency.md"
 require_file "docs/plans/2026-06-13-restart-death-rotation-cancellation.md"
 require_file "docs/plans/2026-06-13-teardown-death-rotation-cancellation.md"
 require_file "docs/plans/2026-06-13-location-independent-make.md"
+require_file "docs/plans/2026-06-16-teardown-gameplay-state.md"
 
 python3 "$UPDATE_ROTATION_CHECK" \
   "$ROOT_DIR/GameOfThrows/GameScene.swift" \
@@ -327,6 +329,34 @@ if ! grep -Fq "[weak self] in self?.spawnPipes()" "$ROOT_DIR/GameOfThrows/GameSc
   printf '%s\n' "GameScene must release repeating actions and contact callbacks when leaving its view." >&2
   exit 1
 fi
+
+python3 - "$ROOT_DIR/GameOfThrows/GameScene.swift" <<'PY'
+import sys
+from pathlib import Path
+
+source = Path(sys.argv[1]).read_text()
+teardown = source.split("override func willMoveFromView", 1)[-1].split(
+    "func spawnPipes", 1
+)[0]
+contracts = (
+    "moving?.speed = 0",
+    "cancelBirdDeathRotation()",
+    'removeActionForKey("spawnPipes")',
+    'removeActionForKey("flash")',
+    "physicsWorld.contactDelegate = nil",
+)
+if any(teardown.count(contract) != 1 for contract in contracts):
+    raise SystemExit(
+        "GameScene teardown must stop optional gameplay state once before releasing callback ownership."
+    )
+positions = [teardown.index(contract) for contract in contracts]
+if positions != sorted(positions):
+    raise SystemExit(
+        "GameScene teardown must stop gameplay before cancelling actions and clearing contact ownership."
+    )
+if "moving.speed = 0" in teardown:
+    raise SystemExit("GameScene teardown must remain safe before moving is initialized.")
+PY
 
 if ! grep -Fq "guard let bird = bird" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
   ! grep -Fq "let pipes = pipes" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
@@ -653,6 +683,15 @@ if ! grep -Fq "Presentation reset and view teardown cancel the bird's keyed deat
   ! grep -Fq "Cancelled the bird's keyed death rotation before scene presentation reset and view teardown cleanup" "$ROOT_DIR/CHANGES.md" ||
   ! grep -Fq "Cancel keyed bird collision actions before removing scene children or clearing the physics contact delegate" "$ROOT_DIR/AGENTS.md"; then
   printf '%s\n' "Project guidance must document cancellation before scene ownership cleanup." >&2
+  exit 1
+fi
+
+if ! grep -Fq "View teardown stops the moving graph first" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "Teardown should stop the moving graph before releasing action and contact" "$ROOT_DIR/SECURITY.md" ||
+  ! grep -Fq "View teardown stops the moving graph before releasing action and contact" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "Stopped the moving gameplay graph before scene teardown releases keyed" "$ROOT_DIR/CHANGES.md" ||
+  ! grep -Fq "Stop the optional moving gameplay graph before teardown removes keyed actions" "$ROOT_DIR/AGENTS.md"; then
+  printf '%s\n' "Project guidance must document gameplay shutdown before teardown ownership cleanup." >&2
   exit 1
 fi
 

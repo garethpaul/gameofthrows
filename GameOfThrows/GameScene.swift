@@ -148,6 +148,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
 
     override func willMoveFromView(view: SKView) {
+        canRestart = false
         moving?.speed = 0
         cancelBirdDeathRotation()
         self.removeActionForKey("spawnPipes")

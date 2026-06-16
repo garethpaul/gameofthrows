@@ -55,8 +55,8 @@ maintenance baseline for the legacy Xcode project.
   and documentation intentionally change with it.
 - Keep repeating SpriteKit actions weakly captured and remove scene actions and
   contact callbacks when a scene leaves its view.
-- Stop the optional moving gameplay graph before teardown removes keyed actions
-  or clears physics contact ownership.
+- Revoke restart eligibility and stop the optional moving gameplay graph before
+  teardown removes keyed actions or clears physics contact ownership.
 - Clear prior keyed actions and child nodes before rebuilding a presented scene.
 - Cancel keyed bird collision actions before removing scene children or clearing the physics contact delegate.
 - Cancel pending keyed collision actions before restoring restart state.

@@ -62,8 +62,9 @@ Current baseline:
   death rotation under one keyed action owner.
 - The scene tears down repeating actions and its physics contact delegate when
   it leaves the SpriteKit view; the spawn closure does not retain the scene.
-- View teardown stops the moving graph before releasing action and contact
-  ownership, making the shared gameplay predicate reject late callbacks.
+- View teardown revokes restart eligibility and stops the moving graph before
+  releasing action and contact ownership, preventing late detached-scene work
+  from restarting or mutating gameplay.
 - The local Makefile exposes lint, test, build, and check targets for a stable
   pre-push gate.
 - UI tests keep a launch smoke test for basic app startup coverage.

@@ -2,6 +2,8 @@
 
 ## 2026-06-16
 
+- Revoked restart eligibility before scene teardown stops movement and releases
+  callback ownership, preventing late touches from reactivating detached play.
 - Stopped the moving gameplay graph before scene teardown releases keyed
   actions and physics contact ownership, so late callbacks fail the shared
   active-gameplay guard.

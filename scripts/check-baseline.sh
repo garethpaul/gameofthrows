@@ -24,6 +24,7 @@ LOCATION_INDEPENDENT_MAKE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-location-indepen
 UPDATE_ROTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-14-update-rotation-ownership.md"
 UPDATE_ROTATION_CHECK="$ROOT_DIR/scripts/check-update-rotation-ownership.py"
 TEARDOWN_GAMEPLAY_PLAN="$ROOT_DIR/docs/plans/2026-06-16-teardown-gameplay-state.md"
+TEARDOWN_RESTART_PLAN="$ROOT_DIR/docs/plans/2026-06-16-teardown-restart-revocation.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 PROJECT_FILE="$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"
 SHARED_SCHEMES="$ROOT_DIR/GameOfThrows.xcodeproj/xcshareddata/xcschemes"
@@ -82,6 +83,7 @@ require_file "docs/plans/2026-06-13-restart-death-rotation-cancellation.md"
 require_file "docs/plans/2026-06-13-teardown-death-rotation-cancellation.md"
 require_file "docs/plans/2026-06-13-location-independent-make.md"
 require_file "docs/plans/2026-06-16-teardown-gameplay-state.md"
+require_file "docs/plans/2026-06-16-teardown-restart-revocation.md"
 
 python3 "$UPDATE_ROTATION_CHECK" \
   "$ROOT_DIR/GameOfThrows/GameScene.swift" \
@@ -339,6 +341,7 @@ teardown = source.split("override func willMoveFromView", 1)[-1].split(
     "func spawnPipes", 1
 )[0]
 contracts = (
+    "canRestart = false",
     "moving?.speed = 0",
     "cancelBirdDeathRotation()",
     'removeActionForKey("spawnPipes")',
@@ -352,7 +355,7 @@ if any(teardown.count(contract) != 1 for contract in contracts):
 positions = [teardown.index(contract) for contract in contracts]
 if positions != sorted(positions):
     raise SystemExit(
-        "GameScene teardown must stop gameplay before cancelling actions and clearing contact ownership."
+        "GameScene teardown must revoke restart and stop gameplay before releasing callback ownership."
     )
 if "moving.speed = 0" in teardown:
     raise SystemExit("GameScene teardown must remain safe before moving is initialized.")
@@ -686,12 +689,13 @@ if ! grep -Fq "Presentation reset and view teardown cancel the bird's keyed deat
   exit 1
 fi
 
-if ! grep -Fq "View teardown stops the moving graph first" "$ROOT_DIR/README.md" ||
-  ! grep -Fq "Teardown should stop the moving graph before releasing action and contact" "$ROOT_DIR/SECURITY.md" ||
-  ! grep -Fq "View teardown stops the moving graph before releasing action and contact" "$ROOT_DIR/VISION.md" ||
+if ! grep -Fq "View teardown revokes restart eligibility and stops the moving graph first" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "Teardown should revoke restart eligibility and stop the moving graph before" "$ROOT_DIR/SECURITY.md" ||
+  ! grep -Fq "View teardown revokes restart eligibility and stops the moving graph before" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "Revoked restart eligibility before scene teardown stops movement" "$ROOT_DIR/CHANGES.md" ||
   ! grep -Fq "Stopped the moving gameplay graph before scene teardown releases keyed" "$ROOT_DIR/CHANGES.md" ||
-  ! grep -Fq "Stop the optional moving gameplay graph before teardown removes keyed actions" "$ROOT_DIR/AGENTS.md"; then
-  printf '%s\n' "Project guidance must document gameplay shutdown before teardown ownership cleanup." >&2
+  ! grep -Fq "Revoke restart eligibility and stop the optional moving gameplay graph before" "$ROOT_DIR/AGENTS.md"; then
+  printf '%s\n' "Project guidance must document restart revocation and gameplay shutdown before teardown ownership cleanup." >&2
   exit 1
 fi
 

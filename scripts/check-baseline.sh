@@ -784,3 +784,36 @@ if (
         "Teardown gameplay state plan must record completed status, actual verification, and the runtime boundary."
     )
 PY
+
+python3 - "$TEARDOWN_RESTART_PLAN" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+plan = Path(sys.argv[1]).read_text()
+frontmatter = plan.split("---", 2)[1]
+statuses = re.findall(r"^status: .+$", frontmatter, flags=re.MULTILINE)
+verification = plan.split("## Verification Completed\n", 1)[-1]
+normalized_verification = " ".join(verification.split())
+required = (
+    "All four Make gates passed",
+    "External-directory `make check` passed",
+    "Six isolated mutations were rejected",
+    "no actionable findings or testing gaps",
+    "`xcodebuild` was unavailable",
+    "No SpriteKit runtime",
+    "PR #15 exact-head checks",
+    "push run 27646582344",
+    "pull-request run 27646590073",
+    "zero open alerts",
+)
+if (
+    statuses != ["status: completed"]
+    or "## Verification Completed\n" not in plan
+    or any(item not in normalized_verification for item in required)
+    or re.search(r"\b(?:pending|todo|tbd|not run)\b", verification, re.IGNORECASE)
+):
+    raise SystemExit(
+        "Teardown restart revocation plan must record completed status, actual verification, and the runtime boundary."
+    )
+PY

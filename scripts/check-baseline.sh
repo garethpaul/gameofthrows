@@ -358,8 +358,10 @@ if ! grep -Fq "IOS_DESTINATION" "$ROOT_DIR/build.sh" ||
 fi
 
 if ! grep -Fq 'let scene = GameScene(fileNamed: "GameScene")' "$ROOT_DIR/GameOfThrows/GameViewController.swift" ||
-  ! grep -Fq "guard let skView = view as? SKView" "$ROOT_DIR/GameOfThrows/GameViewController.swift"; then
-  printf '%s\n' "Scene loading and SKView access must stay optional-safe." >&2
+  ! grep -Fq "guard let skView = view as? SKView" "$ROOT_DIR/GameOfThrows/GameViewController.swift" ||
+  ! grep -Fq "override var shouldAutorotate: Bool" "$ROOT_DIR/GameOfThrows/GameViewController.swift" ||
+  ! grep -Fq "override var supportedInterfaceOrientations: UIInterfaceOrientationMask" "$ROOT_DIR/GameOfThrows/GameViewController.swift"; then
+  printf '%s\n' "Scene loading, SKView access, and UIKit orientation overrides must stay modern and optional-safe." >&2
   exit 1
 fi
 

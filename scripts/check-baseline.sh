@@ -920,3 +920,35 @@ if (
         "Teardown restart revocation plan must record completed status, actual verification, and the runtime boundary."
     )
 PY
+
+python3 - "$SWIFT_MODERNIZATION_PLAN" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+plan = Path(sys.argv[1]).read_text()
+frontmatter = plan.split("---", 2)[1]
+statuses = re.findall(r"^status: .+$", frontmatter, flags=re.MULTILINE)
+verification = plan.split("## Verification Completed\n", 1)[-1]
+normalized_verification = " ".join(verification.split())
+required = (
+    "All four Make gates passed",
+    "external-directory `make check` passed",
+    "Ten isolated mutations were rejected",
+    "`xcodebuild` was unavailable on Linux",
+    "no local UIKit, SpriteKit, simulator, rendering, touch, or gameplay-runtime result is claimed",
+    "`a92e9258c804c4e3a83da8d30c296f31fe8decdb`",
+    "push run `27718662618`",
+    "pull-request run `27718664377`",
+    "PR #16 remained open and mergeable",
+)
+if (
+    statuses != ["status: completed"]
+    or "## Verification Completed\n" not in plan
+    or any(item not in normalized_verification for item in required)
+    or re.search(r"\b(?:pending|todo|tbd|not run|not yet)\b", verification, re.IGNORECASE)
+):
+    raise SystemExit(
+        "Swift/Xcode modernization plan must record completed status, actual hosted evidence, and the runtime boundary."
+    )
+PY

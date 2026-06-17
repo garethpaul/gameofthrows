@@ -2,7 +2,7 @@
 title: Modernize GameOfThrows for hosted Xcode builds
 type: modernization
 date: 2026-06-17
-status: planned
+status: completed
 execution: code
 ---
 
@@ -125,6 +125,41 @@ Linux limitation, and record only verification that actually ran.
   markers, executable modes, and credential-shaped additions.
 - Require the canonical push and pull-request macOS jobs to compile the exact
   delivery head successfully before recording terminal evidence.
+
+## Work Completed
+
+- Migrated the application and launch smoke-test sources from Swift 2 syntax
+  to Swift 5-compatible UIKit and SpriteKit APIs while retaining the existing
+  gameplay lifecycle, scoring, collision, restart, and teardown contracts.
+- Set Swift 5 and iOS 12 as explicit project boundaries, refreshed the shared
+  schemes for Xcode 16.4, and pinned the hosted developer directory.
+- Replaced project-only parsing with a code-signing-disabled Debug application
+  build for a generic iOS Simulator destination whenever `xcodebuild` is
+  available.
+- Added static and mutation-sensitive contracts for the language mode,
+  deployment floor, modern callbacks and UIKit orientation properties, typed
+  scene loading, workflow pin, destination, signing suppression, and build
+  action.
+
+## Verification Completed
+
+- `sh -n scripts/check-baseline.sh scripts/build-app.sh build.sh` passed.
+- All four Make gates passed, and external-directory `make check` passed
+  through the absolute Makefile path.
+- Ruby project inspection confirmed Swift 5 and iOS 12 for both targets and
+  both Debug and Release configurations.
+- Ten isolated mutations were rejected, covering project settings, modern
+  source signatures, typed scene loading, workflow/build configuration, and
+  both UIKit orientation properties.
+- `git diff --check` and the exact diff, project structure, generated-artifact,
+  conflict-marker, executable-mode, and credential-shaped addition audits
+  passed.
+- `xcodebuild` was unavailable on Linux, so no local UIKit, SpriteKit,
+  simulator, rendering, touch, or gameplay-runtime result is claimed.
+- Exact implementation head
+  `a92e9258c804c4e3a83da8d30c296f31fe8decdb` compiled successfully with
+  Xcode 16.4 in push run `27718662618` and pull-request run `27718664377`.
+- PR #16 remained open and mergeable; no predecessor PR was merged or closed.
 
 ## Risks And Boundaries
 

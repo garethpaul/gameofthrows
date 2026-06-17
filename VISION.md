@@ -95,7 +95,8 @@ Next priorities:
 - Keep repeating action ownership weak and scene teardown explicit
 - Keep teardown movement shutdown ahead of action and contact ownership cleanup
 - Keep shared schemes free of dangling project target references
-- Modernize Swift/project settings in a dedicated pass
+- Keep the completed Swift 5, iOS 12, and hosted Xcode 16.4 build boundary
+  explicit and mutation-tested
 
 Contribution rules:
 
@@ -116,7 +117,7 @@ should be opt-in, documented, and avoid collecting unnecessary user data.
 ## What We Will Not Merge (For Now)
 
 - Asset replacements without purpose or provenance
-- Broad Swift migrations mixed with gameplay changes
+- Broad Swift or project migrations mixed with gameplay changes
 - Analytics or tracking features
 - Build changes that make the sample harder to open in Xcode
 

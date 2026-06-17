@@ -7,8 +7,8 @@ source = Path(sys.argv[1]).read_text(encoding="utf-8")
 plan = Path(sys.argv[2]).read_text(encoding="utf-8")
 baseline = Path(sys.argv[3]).read_text(encoding="utf-8")
 
-start = source.find("override func update(currentTime: CFTimeInterval)")
-end = source.find("\n    func didBeginContact", start)
+start = source.find("override func update(_ currentTime: TimeInterval)")
+end = source.find("\n    func didBegin(_ contact: SKPhysicsContact)", start)
 if start == -1 or end == -1:
     raise SystemExit("GameScene update boundary is missing.")
 
@@ -19,7 +19,7 @@ gameplay_guard = """if !isGameplayRunning() {
 guard_index = update.find(gameplay_guard)
 physics_index = update.find("guard let bird = bird, let physicsBody = bird.physicsBody")
 velocity_index = update.find("let verticalVelocity = physicsBody.velocity.dy")
-rotation_index = update.find("bird.zRotation = self.clamp(")
+rotation_index = update.find("bird.zRotation = clamp(")
 if -1 in (guard_index, physics_index, velocity_index, rotation_index):
     raise SystemExit("GameScene update rotation ownership contract is incomplete.")
 if not guard_index < physics_index < velocity_index < rotation_index:

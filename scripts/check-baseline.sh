@@ -23,8 +23,10 @@ TEARDOWN_ROTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-13-teardown-death-rotation-
 LOCATION_INDEPENDENT_MAKE_PLAN="$ROOT_DIR/docs/plans/2026-06-13-location-independent-make.md"
 UPDATE_ROTATION_PLAN="$ROOT_DIR/docs/plans/2026-06-14-update-rotation-ownership.md"
 UPDATE_ROTATION_CHECK="$ROOT_DIR/scripts/check-update-rotation-ownership.py"
+APP_BUILD_CHECK="$ROOT_DIR/scripts/build-app.sh"
 TEARDOWN_GAMEPLAY_PLAN="$ROOT_DIR/docs/plans/2026-06-16-teardown-gameplay-state.md"
 TEARDOWN_RESTART_PLAN="$ROOT_DIR/docs/plans/2026-06-16-teardown-restart-revocation.md"
+SWIFT_MODERNIZATION_PLAN="$ROOT_DIR/docs/plans/2026-06-17-swift-xcode-build-modernization.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 PROJECT_FILE="$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"
 SHARED_SCHEMES="$ROOT_DIR/GameOfThrows.xcodeproj/xcshareddata/xcschemes"
@@ -59,6 +61,7 @@ for path in \
   "GameOfThrowsUITests/Info.plist" \
   "GameOfThrowsUITests/GameOfThrowsUITests.swift" \
   "scripts/check-update-rotation-ownership.py" \
+  "scripts/build-app.sh" \
   "docs/plans/2026-06-14-update-rotation-ownership.md" \
   "docs/plans/2026-06-09-score-label-restart-reset.md" \
   "docs/plans/2026-06-09-contact-resource-guard.md" \
@@ -84,6 +87,7 @@ require_file "docs/plans/2026-06-13-teardown-death-rotation-cancellation.md"
 require_file "docs/plans/2026-06-13-location-independent-make.md"
 require_file "docs/plans/2026-06-16-teardown-gameplay-state.md"
 require_file "docs/plans/2026-06-16-teardown-restart-revocation.md"
+require_file "docs/plans/2026-06-17-swift-xcode-build-modernization.md"
 
 python3 "$UPDATE_ROTATION_CHECK" \
   "$ROOT_DIR/GameOfThrows/GameScene.swift" \
@@ -111,6 +115,94 @@ if ! grep -Eq '^\.PHONY: .*build.*check.*lint.*test|^\.PHONY: .*build.*lint.*tes
   exit 1
 fi
 
+python3 - \
+  "$ROOT_DIR/GameOfThrows/AppDelegate.swift" \
+  "$ROOT_DIR/GameOfThrows/GameViewController.swift" \
+  "$ROOT_DIR/GameOfThrows/GameScene.swift" \
+  "$ROOT_DIR/GameOfThrowsUITests/GameOfThrowsUITests.swift" \
+  "$PROJECT_FILE" \
+  "$CI_WORKFLOW" \
+  "$APP_BUILD_CHECK" <<'PY'
+import sys
+from pathlib import Path
+
+app_delegate, view_controller, scene, ui_tests, project, workflow, app_build = (
+    Path(path).read_text(encoding="utf-8") for path in sys.argv[1:]
+)
+
+source_contracts = (
+    (app_delegate, "@main"),
+    (app_delegate, "didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?"),
+    (view_controller, 'GameScene(fileNamed: "GameScene")'),
+    (view_controller, "guard let skView = view as? SKView"),
+    (scene, "override func didMove(to view: SKView)"),
+    (scene, "override func willMove(from view: SKView)"),
+    (scene, "override func update(_ currentTime: TimeInterval)"),
+    (scene, "func didBegin(_ contact: SKPhysicsContact)"),
+    (scene, "override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?)"),
+    (ui_tests, "app = XCUIApplication()"),
+    (ui_tests, "XCTAssertTrue(app.exists)"),
+)
+if any(value not in source for source, value in source_contracts):
+    raise SystemExit("Swift 5 source and SpriteKit lifecycle contracts are incomplete.")
+
+legacy_spellings = (
+    "@UIApplicationMain",
+    "didMoveToView",
+    "willMoveFromView",
+    "didBeginContact",
+    "removeActionForKey",
+    "runAction",
+    "CGVectorMake",
+    "CGPointMake",
+    "CGSizeMake",
+    "repeatActionForever",
+    "runBlock",
+    "waitForDuration",
+    "animateWithTextures",
+    "rotateByAngle",
+    "NSTimeInterval",
+    "NSInteger",
+)
+all_swift = "\n".join((app_delegate, view_controller, scene, ui_tests))
+if any(value in all_swift for value in legacy_spellings):
+    raise SystemExit("Swift 2 source spellings must not return to the maintained targets.")
+
+if project.count("SWIFT_VERSION = 5.0;") != 4:
+    raise SystemExit("Application and UI-test Debug/Release configurations must use Swift 5.")
+if project.count("IPHONEOS_DEPLOYMENT_TARGET = 12.0;") != 6:
+    raise SystemExit("All project and target configurations must retain the iOS 12 deployment floor.")
+if "IPHONEOS_DEPLOYMENT_TARGET = 9." in project:
+    raise SystemExit("Unsupported iOS 9 deployment targets must not return.")
+
+developer_dir = "DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer"
+if workflow.count(developer_dir) != 1:
+    raise SystemExit("Hosted validation must pin the installed Xcode 16.4 developer directory.")
+
+build_contracts = (
+    'xcodebuild \\\n',
+    '-project "$ROOT_DIR/GameOfThrows.xcodeproj"',
+    "-scheme GameOfThrows",
+    "-configuration Debug",
+    "-sdk iphonesimulator",
+    "-destination 'generic/platform=iOS Simulator'",
+    'CODE_SIGNING_ALLOWED=NO',
+    'mktemp -d "${TMPDIR:-/tmp}/gameofthrows-derived-data.XXXXXX"',
+    "  build\n",
+)
+if any(value not in app_build for value in build_contracts):
+    raise SystemExit("The maintained Xcode gate must perform an isolated signing-disabled simulator build.")
+PY
+
+if ! grep -Fq "hosted Xcode 16.4 application build" "$ROOT_DIR/AGENTS.md" ||
+  ! grep -Fq "generic iOS Simulator destination with code signing disabled" "$ROOT_DIR/README.md" ||
+  ! grep -Fq "code-signing-disabled Swift 5 application build with pinned Xcode 16.4" "$ROOT_DIR/SECURITY.md" ||
+  ! grep -Fq "Swift 5, iOS 12, and hosted Xcode 16.4 build boundary" "$ROOT_DIR/VISION.md" ||
+  ! grep -Fq "Migrated the app and UI launch test from Swift 2-era syntax to Swift 5" "$ROOT_DIR/CHANGES.md"; then
+  printf '%s\n' "Project guidance must document the maintained Swift 5 and hosted Xcode build boundary." >&2
+  exit 1
+fi
+
 python3 - "$ROOT_DIR/GameOfThrows/GameScene.swift" <<'PY'
 import sys
 from pathlib import Path
@@ -122,55 +214,55 @@ rotation_helper = source[
 ]
 presentation_helper = source[
     source.index("func resetScenePresentation"):
-    source.index("override func didMoveToView")
+    source.index("override func didMove(to view: SKView)")
 ]
 presentation = source[
-    source.index("override func didMoveToView"):
-    source.index("override func willMoveFromView")
+    source.index("override func didMove(to view: SKView)"):
+    source.index("override func willMove(from view: SKView)")
 ]
 teardown = source[
-    source.index("override func willMoveFromView"):
+    source.index("override func willMove(from view: SKView)"):
     source.index("func spawnPipes")
 ]
 cancel_rotation_helper = "cancelBirdDeathRotation()"
-optional_rotation_cancel = 'bird?.removeActionForKey("deathRotation")'
+optional_rotation_cancel = 'bird?.removeAction(forKey: "deathRotation")'
 if rotation_helper.count(optional_rotation_cancel) != 1:
     raise SystemExit("Bird death rotation helper must cancel the keyed action exactly once when present.")
 if presentation_helper.count(cancel_rotation_helper) != 1:
     raise SystemExit("Scene presentation reset must cancel bird death rotation exactly once.")
-if presentation_helper.index(cancel_rotation_helper) > presentation_helper.index("self.removeAllChildren()"):
+if presentation_helper.index(cancel_rotation_helper) > presentation_helper.index("removeAllChildren()"):
     raise SystemExit("Scene presentation reset must cancel bird death rotation before child cleanup.")
 if teardown.count(cancel_rotation_helper) != 1:
     raise SystemExit("View teardown must cancel bird death rotation exactly once.")
-if teardown.index(cancel_rotation_helper) > teardown.index("self.physicsWorld.contactDelegate = nil"):
+if teardown.index(cancel_rotation_helper) > teardown.index("physicsWorld.contactDelegate = nil"):
     raise SystemExit("View teardown must cancel bird death rotation before contact delegate cleanup.")
 presentation_required = (
-    'self.removeActionForKey("spawnPipes")',
-    'self.removeActionForKey("flash")',
-    "self.removeAllChildren()",
+    'removeAction(forKey: "spawnPipes")',
+    'removeAction(forKey: "flash")',
+    "removeAllChildren()",
 )
 if any(presentation_helper.count(item) != 1 for item in presentation_required):
     raise SystemExit("Scene presentation reset must remove keyed actions and prior children.")
 if presentation.count("resetScenePresentation()") != 1:
-    raise SystemExit("didMoveToView must reset prior scene presentation state exactly once.")
+    raise SystemExit("didMove(to:) must reset prior scene presentation state exactly once.")
 if presentation.index("resetScenePresentation()") > presentation.index("canRestart = false"):
     raise SystemExit("Scene presentation reset must run before gameplay setup begins.")
 
 restart = source[
-    source.index("func resetScene"):
+    source.index("func resetScene()"):
     source.index("override func touchesBegan")
 ]
-collision = source[source.index("func didBeginContact"):]
-cancel_rotation = 'bird.removeActionForKey("deathRotation")'
-bird_reset = "bird.position = CGPointMake"
+collision = source[source.index("func didBegin(_ contact: SKPhysicsContact)"):]
+cancel_rotation = 'bird.removeAction(forKey: "deathRotation")'
+bird_reset = "bird.position = CGPoint("
 if restart.count(cancel_rotation) != 1:
     raise SystemExit("Restart must cancel the prior keyed death rotation exactly once.")
 if restart.index(cancel_rotation) > restart.index(bird_reset):
     raise SystemExit("Restart must cancel the death rotation before restoring bird state.")
 death_rotation_required = (
-    "let deathRotation = SKAction.rotateByAngle",
-    "let stopBird = SKAction.runBlock({ bird.speed = 0 })",
-    'bird.runAction(SKAction.sequence([deathRotation, stopBird]), withKey: "deathRotation")',
+    "let deathRotation = SKAction.rotate(byAngle:",
+    "let stopBird = SKAction.run { bird.speed = 0 }",
+    'bird.run(SKAction.sequence([deathRotation, stopBird]), withKey: "deathRotation")',
 )
 if any(collision.count(item) != 1 for item in death_rotation_required):
     raise SystemExit("Fatal collision rotation must remain one keyed stop sequence.")
@@ -178,7 +270,7 @@ if "completion:{bird.speed = 0 }" in collision:
     raise SystemExit("Fatal collision rotation must not retain an unkeyed late completion.")
 
 required = (
-    "func isBirdCollisionContact(contact: SKPhysicsContact) -> Bool",
+    "func isBirdCollisionContact(_ contact: SKPhysicsContact) -> Bool",
     "let bodyAIsObstacle = bodyMatchesCategory(contact.bodyA, category: worldCategory) ||",
     "bodyMatchesCategory(contact.bodyA, category: pipeCategory)",
     "let bodyBIsObstacle = bodyMatchesCategory(contact.bodyB, category: worldCategory) ||",
@@ -201,10 +293,16 @@ if "scoreCategory" in helper:
 PY
 
 sh -n "$ROOT_DIR/build.sh"
+sh -n "$APP_BUILD_CHECK"
 sh -n "$ROOT_DIR/scripts/check-baseline.sh"
 
 if [ ! -x "$ROOT_DIR/build.sh" ]; then
   printf '%s\n' "build.sh must be executable." >&2
+  exit 1
+fi
+
+if [ ! -x "$APP_BUILD_CHECK" ]; then
+  printf '%s\n' "scripts/build-app.sh must be executable." >&2
   exit 1
 fi
 
@@ -245,8 +343,9 @@ for image_name in "bird-01" "bird-02" "sky" "land" "PipeUp" "PipeDown"; do
 done
 
 if ! grep -Fq "func testApplicationLaunches" "$ROOT_DIR/GameOfThrowsUITests/GameOfThrowsUITests.swift" ||
-  ! grep -Fq "XCUIApplication().launch()" "$ROOT_DIR/GameOfThrowsUITests/GameOfThrowsUITests.swift" ||
-  ! grep -Fq "XCTAssertTrue(XCUIApplication().exists)" "$ROOT_DIR/GameOfThrowsUITests/GameOfThrowsUITests.swift"; then
+  ! grep -Fq "app = XCUIApplication()" "$ROOT_DIR/GameOfThrowsUITests/GameOfThrowsUITests.swift" ||
+  ! grep -Fq "app.launch()" "$ROOT_DIR/GameOfThrowsUITests/GameOfThrowsUITests.swift" ||
+  ! grep -Fq "XCTAssertTrue(app.exists)" "$ROOT_DIR/GameOfThrowsUITests/GameOfThrowsUITests.swift"; then
   printf '%s\n' "UI tests must keep a launch smoke test." >&2
   exit 1
 fi
@@ -258,8 +357,8 @@ if ! grep -Fq "IOS_DESTINATION" "$ROOT_DIR/build.sh" ||
   exit 1
 fi
 
-if ! grep -Fq "guard let path" "$ROOT_DIR/GameOfThrows/GameViewController.swift" ||
-  ! grep -Fq "as? SKView" "$ROOT_DIR/GameOfThrows/GameViewController.swift"; then
+if ! grep -Fq 'let scene = GameScene(fileNamed: "GameScene")' "$ROOT_DIR/GameOfThrows/GameViewController.swift" ||
+  ! grep -Fq "guard let skView = view as? SKView" "$ROOT_DIR/GameOfThrows/GameViewController.swift"; then
   printf '%s\n' "Scene loading and SKView access must stay optional-safe." >&2
   exit 1
 fi
@@ -272,7 +371,7 @@ if ! grep -Fq "arc4random_uniform(height)" "$ROOT_DIR/GameOfThrows/GameScene.swi
 fi
 
 if ! grep -Fq "func applyBirdImpulse" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
-  ! grep -Fq "physicsBody.applyImpulse(CGVectorMake(0, 30))" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq "physicsBody.applyImpulse(CGVector(dx: 0, dy: 30))" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
   grep -Fq "for touch" "$ROOT_DIR/GameOfThrows/GameScene.swift"; then
   printf '%s\n' "Touch handling must use the single guarded bird impulse helper." >&2
   exit 1
@@ -315,7 +414,7 @@ if ! grep -Fq "scoreLabelNode.setScale(1.0)" "$ROOT_DIR/GameOfThrows/GameScene.s
 fi
 
 if ! grep -Fq "let skyColor = skyColor" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
-  ! grep -Fq "let stopBird = SKAction.runBlock({ bird.speed = 0 })" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq "let stopBird = SKAction.run { bird.speed = 0 }" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
   ! grep -Fq "self.backgroundColor = skyColor" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
   grep -Fq "self.bird.speed = 0" "$ROOT_DIR/GameOfThrows/GameScene.swift"; then
   printf '%s\n' "GameScene contact handling must guard required scene resources and avoid delayed self.bird access." >&2
@@ -324,9 +423,9 @@ fi
 
 if ! grep -Fq "[weak self] in self?.spawnPipes()" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
   ! grep -Fq 'withKey: "spawnPipes"' "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
-  ! grep -Fq "override func willMoveFromView" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
-  ! grep -Fq 'removeActionForKey("spawnPipes")' "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
-  ! grep -Fq 'removeActionForKey("flash")' "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq "override func willMove(from view: SKView)" "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq 'removeAction(forKey: "spawnPipes")' "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
+  ! grep -Fq 'removeAction(forKey: "flash")' "$ROOT_DIR/GameOfThrows/GameScene.swift" ||
   ! grep -Fq "physicsWorld.contactDelegate = nil" "$ROOT_DIR/GameOfThrows/GameScene.swift"; then
   printf '%s\n' "GameScene must release repeating actions and contact callbacks when leaving its view." >&2
   exit 1
@@ -337,15 +436,15 @@ import sys
 from pathlib import Path
 
 source = Path(sys.argv[1]).read_text()
-teardown = source.split("override func willMoveFromView", 1)[-1].split(
+teardown = source.split("override func willMove(from view: SKView)", 1)[-1].split(
     "func spawnPipes", 1
 )[0]
 contracts = (
     "canRestart = false",
     "moving?.speed = 0",
     "cancelBirdDeathRotation()",
-    'removeActionForKey("spawnPipes")',
-    'removeActionForKey("flash")',
+    'removeAction(forKey: "spawnPipes")',
+    'removeAction(forKey: "flash")',
     "physicsWorld.contactDelegate = nil",
 )
 if any(teardown.count(contract) != 1 for contract in contracts):
@@ -505,9 +604,9 @@ if ! grep -Fq "make check" "$CONTACT_RESOURCE_PLAN"; then
 fi
 
 if command -v xcodebuild >/dev/null 2>&1; then
-  xcodebuild -list -project "$ROOT_DIR/GameOfThrows.xcodeproj" >/dev/null
+  "$APP_BUILD_CHECK"
 else
-  printf '%s\n' "xcodebuild not found; static GameOfThrows baseline checks passed."
+  printf '%s\n' "xcodebuild not found; Swift/Xcode application build skipped after static GameOfThrows baseline checks passed."
 fi
 
 workflow_files=$(find "$ROOT_DIR/.github/workflows" -type f -print)
@@ -537,12 +636,14 @@ jobs:
   check:
     runs-on: macos-15
     timeout-minutes: 10
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
     steps:
       - name: Check out repository
         uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
         with:
           persist-credentials: false
-      - name: Run static project baseline
+      - name: Run project baseline
         run: make check
 EOF
 

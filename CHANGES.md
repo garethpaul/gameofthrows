@@ -1,5 +1,12 @@
 # Changes
 
+## 2026-06-17
+
+- Migrated the app and UI launch test from Swift 2-era syntax to Swift 5 while
+  preserving the existing SpriteKit gameplay and lifecycle contracts.
+- Raised both targets to iOS 12 and made the pinned Xcode 16.4 hosted gate
+  compile the app for a generic simulator with code signing disabled.
+
 ## 2026-06-16
 
 - Revoked restart eligibility before scene teardown stops movement and releases

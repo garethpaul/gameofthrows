@@ -2,9 +2,9 @@
 
 ## Repository purpose
 
-`garethpaul/gameofthrows` is a preserved Swift 2 and SpriteKit iOS 9 sample
-inspired by Flappy Bird. It includes a small UI launch test and a static
-maintenance baseline for the legacy Xcode project.
+`garethpaul/gameofthrows` is a modernized Swift 5 and SpriteKit iOS 12 sample
+inspired by Flappy Bird. It includes a small UI launch test, a Linux static
+maintenance baseline, and a hosted Xcode 16.4 application build.
 
 ## Project structure
 
@@ -27,15 +27,16 @@ maintenance baseline for the legacy Xcode project.
 
 ## Coding conventions
 
-- Preserve the Swift 2 syntax and SpriteKit APIs unless modernization is the
-  explicit task and is verified with a compatible Xcode toolchain.
-- Preserve legacy Xcode project settings and signing assumptions unless the change is explicitly about modernization.
+- Preserve Swift 5 compatibility, the iOS 12 deployment floor, and current
+  SpriteKit API spellings unless a dedicated migration plan changes them.
+- Preserve signing assumptions and avoid broad Xcode project regeneration.
 
 ## Testing guidance
 
 - Test-related files detected: `GameOfThrows.xcodeproj/xcshareddata/xcschemes/GameOfThrowsUITests.xcscheme`, `GameOfThrowsUITests/GameOfThrowsUITests.swift`
-- Hosted macOS CI runs `make check` and parses the Xcode project; it does not
-  select a simulator, launch the app, or exercise gameplay.
+- Hosted macOS CI pins Xcode 16.4 and runs a code-signing-disabled application
+  build for a generic iOS Simulator destination; it does not boot a simulator,
+  launch the app, or exercise gameplay.
 - Start with the narrowest relevant test or Make target, then run `make check` before handing off if the change is not documentation-only.
 - Keep README verification notes in sync when commands, fixtures, or supported toolchains change.
 
@@ -49,7 +50,8 @@ maintenance baseline for the legacy Xcode project.
 ## Safety and gotchas
 
 - No required secret or credential file was identified in the repository scan. If you add integrations later, keep secrets out of git.
-- This looks like an Apple platform project or sample. Xcode, Swift, CocoaPods, and deployment target versions may need to match the original project era.
+- Keep the checked-in Swift 5 language mode and iOS 12 deployment target aligned
+  with the pinned hosted Xcode 16.4 build.
 - Keep the checkout action pinned, read-only, and configured without persisted
   credentials; keep `check.yml` as the only hosted workflow unless the baseline
   and documentation intentionally change with it.

@@ -52,10 +52,10 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 
 ## Testing and Verification
 
-- Run `make lint`, `make test`, `make build`, and `make check` for static
-  project, script, asset, and crash-hardening checks that do not require Xcode.
-  The `lint`, `test`, and `build` targets currently delegate to the static
-  baseline.
+- Run `make lint`, `make test`, `make build`, and `make check` for project,
+  script, asset, crash-hardening, and toolchain checks. On Linux the Xcode build
+  is truthfully skipped; on macOS the same baseline compiles the app with Swift
+  5 for a generic iOS Simulator destination with code signing disabled.
 - Use the absolute Makefile path to run the same gates from another working
   directory. Verification resolves the checker relative to the loaded
   Makefile rather than the caller's directory.
@@ -97,10 +97,12 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 - Run `./build.sh` on macOS with Xcode installed. Set `IOS_SIMULATOR_NAME` to
   override only the simulator name, or `IOS_DESTINATION` to provide a full
   xcodebuild destination string.
-- GitHub Actions runs `make check` on macOS with read-only permissions, an
-  immutable checkout action, and `persist-credentials: false`. It parses the
-  Xcode project without selecting an obsolete simulator. Run `build.sh`
-  explicitly for UI testing.
+- GitHub Actions pins Xcode 16.4 and runs `make check` on macOS with read-only
+  permissions, an immutable checkout action, and `persist-credentials: false`.
+  The gate compiles the Swift 5 app for a generic iOS Simulator destination;
+  run `build.sh` explicitly to boot a named simulator and execute UI tests.
+- The maintained Xcode project uses Swift 5 language mode and an iOS 12
+  deployment floor for both the app and UI-test targets.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 

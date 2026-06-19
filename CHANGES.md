@@ -6,6 +6,8 @@
   preserving the existing SpriteKit gameplay and lifecycle contracts.
 - Raised both targets to iOS 12 and made the pinned Xcode 16.4 hosted gate
   compile the app for a generic simulator with code signing disabled.
+- Made the manual UI-test script resolve the default project from the repository
+  root and keep Xcode DerivedData in a temporary directory.
 
 ## 2026-06-16
 

@@ -357,6 +357,16 @@ if ! grep -Fq "IOS_DESTINATION" "$ROOT_DIR/build.sh" ||
   exit 1
 fi
 
+if ! grep -Fq 'ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)' "$ROOT_DIR/build.sh" ||
+  ! grep -Fq 'DEFAULT_PROJECT="$ROOT_DIR/GameOfThrows.xcodeproj"' "$ROOT_DIR/build.sh" ||
+  ! grep -Fq 'PROJECT=${XCODE_PROJECT:-$DEFAULT_PROJECT}' "$ROOT_DIR/build.sh" ||
+  ! grep -Fq 'derived_data=$(mktemp -d "${TMPDIR:-/tmp}/gameofthrows-test-derived-data.XXXXXX")' "$ROOT_DIR/build.sh" ||
+  ! grep -Fq 'rm -rf -- "$derived_data"' "$ROOT_DIR/build.sh" ||
+  ! grep -Fq -- '-derivedDataPath "$derived_data"' "$ROOT_DIR/build.sh"; then
+  printf '%s\n' "build.sh must resolve the default project from the script directory and keep DerivedData in temp." >&2
+  exit 1
+fi
+
 if ! grep -Fq 'let scene = GameScene(fileNamed: "GameScene")' "$ROOT_DIR/GameOfThrows/GameViewController.swift" ||
   ! grep -Fq "guard let skView = view as? SKView" "$ROOT_DIR/GameOfThrows/GameViewController.swift" ||
   ! grep -Fq "override var shouldAutorotate: Bool" "$ROOT_DIR/GameOfThrows/GameViewController.swift" ||

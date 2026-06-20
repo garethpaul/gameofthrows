@@ -94,9 +94,9 @@ python3 "$UPDATE_ROTATION_CHECK" \
   "$UPDATE_ROTATION_PLAN" \
   "$ROOT_DIR/scripts/check-baseline.sh"
 
-if ! grep -Fq 'ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))' "$ROOT_DIR/Makefile" ||
+if ! grep -Fq 'override ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))' "$ROOT_DIR/Makefile" ||
   ! grep -Fq '"$(ROOT)/scripts/check-baseline.sh"' "$ROOT_DIR/Makefile"; then
-  printf '%s\n' "Makefile verification must resolve the checker from the loaded Makefile." >&2
+  printf '%s\n' "Makefile verification must protect the loaded Makefile root from overrides." >&2
   exit 1
 fi
 

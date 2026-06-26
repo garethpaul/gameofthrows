@@ -33,6 +33,8 @@ Current baseline:
 - `build.sh` uses POSIX shell syntax and supports `IOS_SIMULATOR_NAME` for
   simulator selection plus `IOS_DESTINATION` for full xcodebuild destination
   overrides.
+- Hosted CI executes the UI launch smoke test on Xcode 16.4's iPhone 16 Pro /
+  iOS 18.5 simulator after the generic application build.
 - Scene loading and per-frame physics updates avoid the most crash-prone force
   unwraps.
 - Touch handling applies one bird impulse per touch event and guards bird

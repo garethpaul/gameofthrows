@@ -34,9 +34,9 @@ maintenance baseline, and a hosted Xcode 16.4 application build.
 ## Testing guidance
 
 - Test-related files detected: `GameOfThrows.xcodeproj/xcshareddata/xcschemes/GameOfThrowsUITests.xcscheme`, `GameOfThrowsUITests/GameOfThrowsUITests.swift`
-- Hosted macOS CI pins Xcode 16.4 and runs a code-signing-disabled application
-  build for a generic iOS Simulator destination; it does not boot a simulator,
-  launch the app, or exercise gameplay.
+- Hosted macOS CI pins Xcode 16.4, compiles the application for a generic iOS
+  Simulator destination, then runs the UI launch smoke test on an iPhone 16 Pro
+  with iOS 18.5. It does not exercise touch or gameplay behavior.
 - Start with the narrowest relevant test or Make target, then run `make check` before handing off if the change is not documentation-only.
 - Keep README verification notes in sync when commands, fixtures, or supported toolchains change.
 

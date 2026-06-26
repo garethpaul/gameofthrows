@@ -99,8 +99,9 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
   xcodebuild destination string.
 - GitHub Actions pins Xcode 16.4 and runs `make check` on macOS with read-only
   permissions, an immutable checkout action, and `persist-credentials: false`.
-  The gate compiles the Swift 5 app for a generic iOS Simulator destination;
-  run `build.sh` explicitly to boot a named simulator and execute UI tests.
+  After the generic simulator compile, the hosted gate runs `build.sh` against
+  the runner's iPhone 16 Pro on iOS 18.5 and executes the UI launch smoke test.
+  Run `build.sh` explicitly for the same test on another available simulator.
 - The maintained Xcode project uses Swift 5 language mode and an iOS 12
   deployment floor for both the app and UI-test targets.
 

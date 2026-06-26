@@ -25,3 +25,7 @@ jobs:
           persist-credentials: false
       - name: Run project baseline
         run: make check
+      - name: Run UI launch test
+        env:
+          IOS_DESTINATION: platform=iOS Simulator,name=iPhone 16 Pro,OS=18.5
+        run: ./build.sh

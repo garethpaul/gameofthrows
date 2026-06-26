@@ -1,5 +1,45 @@
 # Changes
 
+## 2026-06-26T23:35:37Z - P2 - Execute the hosted UI launch test
+
+### Summary
+Completed the next documented Swift-modernization follow-up by adding a real
+simulator launch test after the existing generic application build.
+
+### Work completed
+- Pinned the hosted launch test to Xcode 16.4's iPhone 16 Pro / iOS 18.5 runtime.
+- Reused the existing isolated `build.sh` test entry point and temporary
+  DerivedData cleanup.
+- Kept the local static and generic-build baseline unchanged.
+
+### Threads
+- None; work completed directly in the canonical checkout.
+
+### Files changed
+- `.github/workflows/check.yml` — run the UI launch test after the baseline.
+- `scripts/check-baseline.sh` — enforce the hosted workflow and plan contract.
+- `docs/plans/2026-06-26-hosted-ui-launch-test.md` — record design and evidence.
+- `AGENTS.md`, `README.md`, `SECURITY.md`, `VISION.md` — document runtime scope.
+
+### Validation
+- `make check` before implementation — failed on the missing workflow step.
+- `make check` after implementation — passed static contracts; Xcode build was
+  truthfully skipped because this Linux host has no `xcodebuild`.
+- `git diff --check` — passed.
+- Hosted Xcode 16.4 simulator test — pending PR validation.
+
+### Bugs / findings
+- The checked-in UI launch smoke test existed but was never executed by hosted
+  CI, so green checks proved compilation only.
+
+### Blockers
+- Local Linux does not provide Xcode or an iOS Simulator; hosted macOS is the
+  authoritative runtime gate.
+
+### Next action
+- Open a pull request and require the exact head SHA to pass both the generic
+  application build and iOS 18.5 UI launch test before merge.
+
 ## 2026-06-17
 
 - Migrated the app and UI launch test from Swift 2-era syntax to Swift 5 while

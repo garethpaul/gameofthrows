@@ -672,7 +672,11 @@ fi
 
 if ! grep -Fq "status: completed" "$HOSTED_UI_TEST_PLAN" ||
   ! grep -Fq "iPhone 16 Pro" "$HOSTED_UI_TEST_PLAN" ||
-  ! grep -Fq "iOS 18.5" "$HOSTED_UI_TEST_PLAN"; then
+  ! grep -Fq "iOS 18.5" "$HOSTED_UI_TEST_PLAN" ||
+  ! grep -Fq "28271229926" "$HOSTED_UI_TEST_PLAN" ||
+  ! grep -Fq "28271230831" "$HOSTED_UI_TEST_PLAN" ||
+  ! grep -Fq "99b51a81dc25b0a294760d7c64ae6a9cccb44735" "$HOSTED_UI_TEST_PLAN" ||
+  ! grep -Fq "5e610bbfccdf27a47e50f9a1f5abbb1c2851536a" "$HOSTED_UI_TEST_PLAN"; then
   printf '%s\n' "Hosted UI launch-test plan must record completed pinned simulator evidence." >&2
   exit 1
 fi

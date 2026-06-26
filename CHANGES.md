@@ -26,9 +26,10 @@ simulator launch test after the existing generic application build.
 - `make check` after implementation — passed static contracts; Xcode build was
   truthfully skipped because this Linux host has no `xcodebuild`.
 - `git diff --check` — passed.
-- Hosted Check `28271229926` — passed the generic build and iOS 18.5 UI
+- Hosted push Check `28271229926` — passed the generic build and iOS 18.5 UI
   launch test on commit `99b51a81dc25b0a294760d7c64ae6a9cccb44735`.
-- Hosted Check `28271230831` — duplicate push/PR validation also passed.
+- Hosted pull-request Check `28271230831` — duplicate exact-head validation
+  also passed.
 
 ### Bugs / findings
 - The checked-in UI launch smoke test existed but was never executed by hosted

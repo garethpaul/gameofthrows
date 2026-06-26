@@ -670,10 +670,10 @@ if ! cmp -s "$expected_workflow" "$CI_WORKFLOW"; then
   exit 1
 fi
 
-if ! grep -Fq "status: implemented" "$HOSTED_UI_TEST_PLAN" ||
+if ! grep -Fq "status: completed" "$HOSTED_UI_TEST_PLAN" ||
   ! grep -Fq "iPhone 16 Pro" "$HOSTED_UI_TEST_PLAN" ||
   ! grep -Fq "iOS 18.5" "$HOSTED_UI_TEST_PLAN"; then
-  printf '%s\n' "Hosted UI launch-test plan must record the pinned simulator implementation." >&2
+  printf '%s\n' "Hosted UI launch-test plan must record completed pinned simulator evidence." >&2
   exit 1
 fi
 

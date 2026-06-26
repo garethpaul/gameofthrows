@@ -26,19 +26,22 @@ simulator launch test after the existing generic application build.
 - `make check` after implementation — passed static contracts; Xcode build was
   truthfully skipped because this Linux host has no `xcodebuild`.
 - `git diff --check` — passed.
-- Hosted Xcode 16.4 simulator test — pending PR validation.
+- Hosted Check `28271229926` — passed the generic build and iOS 18.5 UI
+  launch test on commit `99b51a81dc25b0a294760d7c64ae6a9cccb44735`.
+- Hosted Check `28271230831` — duplicate push/PR validation also passed.
 
 ### Bugs / findings
 - The checked-in UI launch smoke test existed but was never executed by hosted
   CI, so green checks proved compilation only.
+- PR #18 merged automatically at its exact green head while this evidence update
+  was being prepared; this follow-up reconciles the changelog and completed plan.
 
 ### Blockers
-- Local Linux does not provide Xcode or an iOS Simulator; hosted macOS is the
-  authoritative runtime gate.
+- None. Local Linux lacks Xcode, but both authoritative hosted macOS runs passed.
 
 ### Next action
-- Open a pull request and require the exact head SHA to pass both the generic
-  application build and iOS 18.5 UI launch test before merge.
+- Merge this evidence-only follow-up after its exact head SHA passes the hosted
+  checks, then verify the resulting `master` workflows.
 
 ## 2026-06-17
 

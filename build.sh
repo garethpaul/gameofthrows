@@ -23,4 +23,6 @@ xcodebuild \
   -sdk iphonesimulator \
   -configuration "$CONFIGURATION" \
   -derivedDataPath "$derived_data" \
+  -retry-tests-on-failure \
+  -test-iterations 2 \
   test

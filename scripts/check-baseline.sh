@@ -364,8 +364,10 @@ if ! grep -Fq 'ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)' "$ROOT_DIR
   ! grep -Fq 'PROJECT=${XCODE_PROJECT:-$DEFAULT_PROJECT}' "$ROOT_DIR/build.sh" ||
   ! grep -Fq 'derived_data=$(mktemp -d "${TMPDIR:-/tmp}/gameofthrows-test-derived-data.XXXXXX")' "$ROOT_DIR/build.sh" ||
   ! grep -Fq 'rm -rf -- "$derived_data"' "$ROOT_DIR/build.sh" ||
-  ! grep -Fq -- '-derivedDataPath "$derived_data"' "$ROOT_DIR/build.sh"; then
-  printf '%s\n' "build.sh must resolve the default project from the script directory and keep DerivedData in temp." >&2
+  ! grep -Fq -- '-derivedDataPath "$derived_data"' "$ROOT_DIR/build.sh" ||
+  ! grep -Fq -- '-retry-tests-on-failure' "$ROOT_DIR/build.sh" ||
+  ! grep -Fq -- '-test-iterations 2' "$ROOT_DIR/build.sh"; then
+  printf '%s\n' "build.sh must isolate artifacts and retry a failed UI test once." >&2
   exit 1
 fi
 
@@ -637,6 +639,8 @@ name: Check
 on:
   pull_request:
   push:
+    branches:
+      - master
   workflow_dispatch:
 
 permissions:

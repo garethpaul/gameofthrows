@@ -10,6 +10,8 @@ simulator launch test after the existing generic application build.
 - Pinned the hosted launch test to Xcode 16.4's iPhone 16 Pro / iOS 18.5 runtime.
 - Reused the existing isolated `build.sh` test entry point and temporary
   DerivedData cleanup.
+- Added one Xcode-native retry for failed tests and stopped running duplicate
+  push checks on pull-request branches; pushes to `master` remain covered.
 - Kept the local static and generic-build baseline unchanged.
 
 ### Threads
@@ -17,6 +19,7 @@ simulator launch test after the existing generic application build.
 
 ### Files changed
 - `.github/workflows/check.yml` — run the UI launch test after the baseline.
+- `build.sh` — retry one failed XCTest execution through Xcode.
 - `scripts/check-baseline.sh` — enforce the hosted workflow and plan contract.
 - `docs/plans/2026-06-26-hosted-ui-launch-test.md` — record design and evidence.
 - `AGENTS.md`, `README.md`, `SECURITY.md`, `VISION.md` — document runtime scope.
@@ -30,18 +33,25 @@ simulator launch test after the existing generic application build.
   launch test on commit `99b51a81dc25b0a294760d7c64ae6a9cccb44735`.
 - Hosted pull-request Check `28271230831` — duplicate exact-head validation
   also passed.
+- Hosted PR Check `28271418185` — reproduced a transient XCTest launch failure
+  where the application never received a process ID; the retry contract was
+  added before rerunning the exact head.
 
 ### Bugs / findings
 - The checked-in UI launch smoke test existed but was never executed by hosted
   CI, so green checks proved compilation only.
 - PR #18 merged automatically at its exact green head while this evidence update
   was being prepared; this follow-up reconciles the changelog and completed plan.
+- Running identical push and pull-request macOS jobs spent twice the simulator
+  capacity without adding distinct coverage, and both later encountered the
+  same transient launch failure.
 
 ### Blockers
-- None. Local Linux lacks Xcode, but both authoritative hosted macOS runs passed.
+- Local Linux cannot execute XCTest; merge remains gated on the exact revised
+  head passing the authoritative hosted macOS launch check.
 
 ### Next action
-- Merge this evidence-only follow-up after its exact head SHA passes the hosted
+- Merge this follow-up after its exact head SHA passes the hosted
   checks, then verify the resulting `master` workflows.
 
 ## 2026-06-17

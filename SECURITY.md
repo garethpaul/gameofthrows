@@ -56,8 +56,9 @@ compete with the keyed death-rotation action after a fatal collision.
 
 GitHub Actions runs the static resource and crash guardrails plus a
 code-signing-disabled Swift 5 application build with pinned Xcode 16.4 before
-changes land. The build targets a generic iOS Simulator and does not launch the
-app or exercise gameplay.
+changes land. It then launches the app through the UI-test target on the
+runner's iPhone 16 Pro with iOS 18.5. This proves startup, not touch, physics,
+scoring, restart, or sustained gameplay behavior.
 The workflow uses an immutable checkout action without persisted credentials,
 and the local baseline rejects extra workflows or canonical job-shape drift.
 Shared Xcode schemes must reference only targets defined by the checked-in

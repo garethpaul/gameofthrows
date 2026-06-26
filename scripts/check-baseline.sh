@@ -27,6 +27,7 @@ APP_BUILD_CHECK="$ROOT_DIR/scripts/build-app.sh"
 TEARDOWN_GAMEPLAY_PLAN="$ROOT_DIR/docs/plans/2026-06-16-teardown-gameplay-state.md"
 TEARDOWN_RESTART_PLAN="$ROOT_DIR/docs/plans/2026-06-16-teardown-restart-revocation.md"
 SWIFT_MODERNIZATION_PLAN="$ROOT_DIR/docs/plans/2026-06-17-swift-xcode-build-modernization.md"
+HOSTED_UI_TEST_PLAN="$ROOT_DIR/docs/plans/2026-06-26-hosted-ui-launch-test.md"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 PROJECT_FILE="$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"
 SHARED_SCHEMES="$ROOT_DIR/GameOfThrows.xcodeproj/xcshareddata/xcschemes"
@@ -88,6 +89,7 @@ require_file "docs/plans/2026-06-13-location-independent-make.md"
 require_file "docs/plans/2026-06-16-teardown-gameplay-state.md"
 require_file "docs/plans/2026-06-16-teardown-restart-revocation.md"
 require_file "docs/plans/2026-06-17-swift-xcode-build-modernization.md"
+require_file "docs/plans/2026-06-26-hosted-ui-launch-test.md"
 
 python3 "$UPDATE_ROTATION_CHECK" \
   "$ROOT_DIR/GameOfThrows/GameScene.swift" \
@@ -657,10 +659,21 @@ jobs:
           persist-credentials: false
       - name: Run project baseline
         run: make check
+      - name: Run UI launch test
+        env:
+          IOS_DESTINATION: platform=iOS Simulator,name=iPhone 16 Pro,OS=18.5
+        run: ./build.sh
 EOF
 
 if ! cmp -s "$expected_workflow" "$CI_WORKFLOW"; then
   printf '%s\n' "GitHub Actions must match the canonical bounded, credential-free macOS check." >&2
+  exit 1
+fi
+
+if ! grep -Fq "status: implemented" "$HOSTED_UI_TEST_PLAN" ||
+  ! grep -Fq "iPhone 16 Pro" "$HOSTED_UI_TEST_PLAN" ||
+  ! grep -Fq "iOS 18.5" "$HOSTED_UI_TEST_PLAN"; then
+  printf '%s\n' "Hosted UI launch-test plan must record the pinned simulator implementation." >&2
   exit 1
 fi
 

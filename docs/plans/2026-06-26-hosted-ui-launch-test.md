@@ -41,9 +41,11 @@ https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.
 - PR #18 merged that exact head as merge commit
   `5e610bbfccdf27a47e50f9a1f5abbb1c2851536a`.
 - Evidence follow-up Check `28271418185` reproduced an XCTest infrastructure
-  failure in which the application never obtained a process ID. The test entry
-  point now asks Xcode to retry one failed test, and feature branches run only
-  the pull-request check while `master` pushes retain post-merge coverage.
+  failure in which the application never obtained a process ID. Repeated runs
+  against the shared named simulator timed out even with an Xcode retry, so the
+  hosted entry point now creates and deletes a dedicated iPhone 16 Pro / iOS
+  18.5 simulator. Feature branches run only the pull-request check while
+  `master` pushes retain post-merge coverage.
 
 ## Scope
 

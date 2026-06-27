@@ -28,6 +28,7 @@ TEARDOWN_GAMEPLAY_PLAN="$ROOT_DIR/docs/plans/2026-06-16-teardown-gameplay-state.
 TEARDOWN_RESTART_PLAN="$ROOT_DIR/docs/plans/2026-06-16-teardown-restart-revocation.md"
 SWIFT_MODERNIZATION_PLAN="$ROOT_DIR/docs/plans/2026-06-17-swift-xcode-build-modernization.md"
 HOSTED_UI_TEST_PLAN="$ROOT_DIR/docs/plans/2026-06-26-hosted-ui-launch-test.md"
+HOSTED_UI_TEST_RUNNER="$ROOT_DIR/scripts/run-hosted-ui-test.sh"
 CI_WORKFLOW="$ROOT_DIR/.github/workflows/check.yml"
 PROJECT_FILE="$ROOT_DIR/GameOfThrows.xcodeproj/project.pbxproj"
 SHARED_SCHEMES="$ROOT_DIR/GameOfThrows.xcodeproj/xcshareddata/xcschemes"
@@ -63,6 +64,7 @@ for path in \
   "GameOfThrowsUITests/GameOfThrowsUITests.swift" \
   "scripts/check-update-rotation-ownership.py" \
   "scripts/build-app.sh" \
+  "scripts/run-hosted-ui-test.sh" \
   "docs/plans/2026-06-14-update-rotation-ownership.md" \
   "docs/plans/2026-06-09-score-label-restart-reset.md" \
   "docs/plans/2026-06-09-contact-resource-guard.md" \
@@ -364,10 +366,8 @@ if ! grep -Fq 'ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)' "$ROOT_DIR
   ! grep -Fq 'PROJECT=${XCODE_PROJECT:-$DEFAULT_PROJECT}' "$ROOT_DIR/build.sh" ||
   ! grep -Fq 'derived_data=$(mktemp -d "${TMPDIR:-/tmp}/gameofthrows-test-derived-data.XXXXXX")' "$ROOT_DIR/build.sh" ||
   ! grep -Fq 'rm -rf -- "$derived_data"' "$ROOT_DIR/build.sh" ||
-  ! grep -Fq -- '-derivedDataPath "$derived_data"' "$ROOT_DIR/build.sh" ||
-  ! grep -Fq -- '-retry-tests-on-failure' "$ROOT_DIR/build.sh" ||
-  ! grep -Fq -- '-test-iterations 2' "$ROOT_DIR/build.sh"; then
-  printf '%s\n' "build.sh must isolate artifacts and retry a failed UI test once." >&2
+  ! grep -Fq -- '-derivedDataPath "$derived_data"' "$ROOT_DIR/build.sh"; then
+  printf '%s\n' "build.sh must resolve the default project from the script directory and keep DerivedData in temp." >&2
   exit 1
 fi
 
@@ -664,13 +664,21 @@ jobs:
       - name: Run project baseline
         run: make check
       - name: Run UI launch test
-        env:
-          IOS_DESTINATION: platform=iOS Simulator,name=iPhone 16 Pro,OS=18.5
-        run: ./build.sh
+        run: ./scripts/run-hosted-ui-test.sh
 EOF
 
 if ! cmp -s "$expected_workflow" "$CI_WORKFLOW"; then
   printf '%s\n' "GitHub Actions must match the canonical bounded, credential-free macOS check." >&2
+  exit 1
+fi
+
+if ! grep -Fq 'com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro' "$HOSTED_UI_TEST_RUNNER" ||
+  ! grep -Fq 'com.apple.CoreSimulator.SimRuntime.iOS-18-5' "$HOSTED_UI_TEST_RUNNER" ||
+  ! grep -Fq 'xcrun simctl create' "$HOSTED_UI_TEST_RUNNER" ||
+  ! grep -Fq 'xcrun simctl bootstatus "$simulator_id" -b' "$HOSTED_UI_TEST_RUNNER" ||
+  ! grep -Fq 'IOS_DESTINATION="platform=iOS Simulator,id=$simulator_id"' "$HOSTED_UI_TEST_RUNNER" ||
+  ! grep -Fq 'xcrun simctl delete "$simulator_id"' "$HOSTED_UI_TEST_RUNNER"; then
+  printf '%s\n' "Hosted UI tests must create, boot, target, and delete an isolated simulator." >&2
   exit 1
 fi
 

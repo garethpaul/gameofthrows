@@ -10,8 +10,9 @@ simulator launch test after the existing generic application build.
 - Pinned the hosted launch test to Xcode 16.4's iPhone 16 Pro / iOS 18.5 runtime.
 - Reused the existing isolated `build.sh` test entry point and temporary
   DerivedData cleanup.
-- Added one Xcode-native retry for failed tests and stopped running duplicate
-  push checks on pull-request branches; pushes to `master` remain covered.
+- Isolated hosted launch tests in a fresh ephemeral simulator and stopped
+  running duplicate push checks on pull-request branches; pushes to `master`
+  remain covered.
 - Kept the local static and generic-build baseline unchanged.
 
 ### Threads
@@ -19,7 +20,8 @@ simulator launch test after the existing generic application build.
 
 ### Files changed
 - `.github/workflows/check.yml` — run the UI launch test after the baseline.
-- `build.sh` — retry one failed XCTest execution through Xcode.
+- `scripts/run-hosted-ui-test.sh` — create, boot, target, and delete a dedicated
+  iOS 18.5 simulator around the launch test.
 - `scripts/check-baseline.sh` — enforce the hosted workflow and plan contract.
 - `docs/plans/2026-06-26-hosted-ui-launch-test.md` — record design and evidence.
 - `AGENTS.md`, `README.md`, `SECURITY.md`, `VISION.md` — document runtime scope.
@@ -43,8 +45,9 @@ simulator launch test after the existing generic application build.
 - PR #18 merged automatically at its exact green head while this evidence update
   was being prepared; this follow-up reconciles the changelog and completed plan.
 - Running identical push and pull-request macOS jobs spent twice the simulator
-  capacity without adding distinct coverage, and both later encountered the
-  same transient launch failure.
+  capacity without adding distinct coverage. Reusing the runner's shared named
+  simulator then produced repeated launch timeouts, so hosted checks now use a
+  fresh simulator identified by UDID.
 
 ### Blockers
 - Local Linux cannot execute XCTest; merge remains gated on the exact revised

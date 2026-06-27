@@ -65,6 +65,7 @@ for path in \
   "scripts/check-update-rotation-ownership.py" \
   "scripts/build-app.sh" \
   "scripts/run-hosted-ui-test.sh" \
+  "scripts/test-hosted-ui-test-runner.sh" \
   "docs/plans/2026-06-14-update-rotation-ownership.md" \
   "docs/plans/2026-06-09-score-label-restart-reset.md" \
   "docs/plans/2026-06-09-contact-resource-guard.md" \
@@ -624,6 +625,8 @@ if command -v xcodebuild >/dev/null 2>&1; then
 else
   printf '%s\n' "xcodebuild not found; Swift/Xcode application build skipped after static GameOfThrows baseline checks passed."
 fi
+
+"$ROOT_DIR/scripts/test-hosted-ui-test-runner.sh"
 
 workflow_files=$(find "$ROOT_DIR/.github/workflows" -type f -print)
 if [ "$workflow_files" != "$CI_WORKFLOW" ]; then

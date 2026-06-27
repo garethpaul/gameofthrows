@@ -22,6 +22,8 @@ simulator launch test after the existing generic application build.
 - `.github/workflows/check.yml` — run the UI launch test after the baseline.
 - `scripts/run-hosted-ui-test.sh` — create, boot, target, and delete a dedicated
   iOS 18.5 simulator around the launch test.
+- `scripts/test-hosted-ui-test-runner.sh` — prove the disposable simulator is
+  targeted and cleaned up after successful and failed fake Xcode runs.
 - `scripts/check-baseline.sh` — enforce the hosted workflow and plan contract.
 - `docs/plans/2026-06-26-hosted-ui-launch-test.md` — record design and evidence.
 - `AGENTS.md`, `README.md`, `SECURITY.md`, `VISION.md` — document runtime scope.
@@ -30,6 +32,8 @@ simulator launch test after the existing generic application build.
 - `make check` before implementation — failed on the missing workflow step.
 - `make check` after implementation — passed static contracts; Xcode build was
   truthfully skipped because this Linux host has no `xcodebuild`.
+- `scripts/test-hosted-ui-test-runner.sh` — passed both success and failure
+  lifecycle cases with fake `xcrun` and `xcodebuild` tools.
 - `git diff --check` — passed.
 - Hosted push Check `28271229926` — passed the generic build and iOS 18.5 UI
   launch test on commit `99b51a81dc25b0a294760d7c64ae6a9cccb44735`.

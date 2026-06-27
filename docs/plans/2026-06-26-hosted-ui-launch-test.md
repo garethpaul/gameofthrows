@@ -1,6 +1,6 @@
 # Hosted UI Launch Test
 
-status: implemented
+status: completed
 
 ## Context
 
@@ -35,8 +35,17 @@ https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.
 
 - A baseline-first mutation fails while the hosted UI-test step is absent.
 - Local `make check` verifies the exact workflow and documentation contract.
-- The pull request must prove the pinned simulator can boot and the UI launch
-  smoke test passes on the exact final head SHA.
+- Hosted Check runs `28271229926` and `28271230831` proved the pinned simulator
+  boots and the UI launch smoke test passes on commit
+  `99b51a81dc25b0a294760d7c64ae6a9cccb44735`.
+- PR #18 merged that exact head as merge commit
+  `5e610bbfccdf27a47e50f9a1f5abbb1c2851536a`.
+- Evidence follow-up Check `28271418185` reproduced an XCTest infrastructure
+  failure in which the application never obtained a process ID. Repeated runs
+  against the shared named simulator timed out even with an Xcode retry, so the
+  hosted entry point now creates and deletes a dedicated iPhone 16 Pro / iOS
+  18.5 simulator. Feature branches run only the pull-request check while
+  `master` pushes retain post-merge coverage.
 
 ## Scope
 

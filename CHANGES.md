@@ -10,6 +10,9 @@ simulator launch test after the existing generic application build.
 - Pinned the hosted launch test to Xcode 16.4's iPhone 16 Pro / iOS 18.5 runtime.
 - Reused the existing isolated `build.sh` test entry point and temporary
   DerivedData cleanup.
+- Isolated hosted launch tests in a fresh ephemeral simulator and stopped
+  running duplicate push checks on pull-request branches; pushes to `master`
+  remain covered.
 - Kept the local static and generic-build baseline unchanged.
 
 ### Threads
@@ -17,6 +20,10 @@ simulator launch test after the existing generic application build.
 
 ### Files changed
 - `.github/workflows/check.yml` — run the UI launch test after the baseline.
+- `scripts/run-hosted-ui-test.sh` — create, boot, target, and delete a dedicated
+  iOS 18.5 simulator around the launch test.
+- `scripts/test-hosted-ui-test-runner.sh` — prove the disposable simulator is
+  targeted and cleaned up after successful and failed fake Xcode runs.
 - `scripts/check-baseline.sh` — enforce the hosted workflow and plan contract.
 - `docs/plans/2026-06-26-hosted-ui-launch-test.md` — record design and evidence.
 - `AGENTS.md`, `README.md`, `SECURITY.md`, `VISION.md` — document runtime scope.
@@ -25,20 +32,34 @@ simulator launch test after the existing generic application build.
 - `make check` before implementation — failed on the missing workflow step.
 - `make check` after implementation — passed static contracts; Xcode build was
   truthfully skipped because this Linux host has no `xcodebuild`.
+- `scripts/test-hosted-ui-test-runner.sh` — passed both success and failure
+  lifecycle cases with fake `xcrun` and `xcodebuild` tools.
 - `git diff --check` — passed.
-- Hosted Xcode 16.4 simulator test — pending PR validation.
+- Hosted push Check `28271229926` — passed the generic build and iOS 18.5 UI
+  launch test on commit `99b51a81dc25b0a294760d7c64ae6a9cccb44735`.
+- Hosted pull-request Check `28271230831` — duplicate exact-head validation
+  also passed.
+- Hosted PR Check `28271418185` — reproduced a transient XCTest launch failure
+  where the application never received a process ID; the retry contract was
+  added before rerunning the exact head.
 
 ### Bugs / findings
 - The checked-in UI launch smoke test existed but was never executed by hosted
   CI, so green checks proved compilation only.
+- PR #18 merged automatically at its exact green head while this evidence update
+  was being prepared; this follow-up reconciles the changelog and completed plan.
+- Running identical push and pull-request macOS jobs spent twice the simulator
+  capacity without adding distinct coverage. Reusing the runner's shared named
+  simulator then produced repeated launch timeouts, so hosted checks now use a
+  fresh simulator identified by UDID.
 
 ### Blockers
-- Local Linux does not provide Xcode or an iOS Simulator; hosted macOS is the
-  authoritative runtime gate.
+- Local Linux cannot execute XCTest; merge remains gated on the exact revised
+  head passing the authoritative hosted macOS launch check.
 
 ### Next action
-- Open a pull request and require the exact head SHA to pass both the generic
-  application build and iOS 18.5 UI launch test before merge.
+- Merge this follow-up after its exact head SHA passes the hosted
+  checks, then verify the resulting `master` workflows.
 
 ## 2026-06-17
 
